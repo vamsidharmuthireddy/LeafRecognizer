@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Leaf Recognizer</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="save_name">pic.jpg</string>
+
+    <string name="picture">Picture</string>
+    <string name="description_info">Info</string>
+    <string name="request_permission">This sample needs camera permission.</string>
+    <string name="camera_error">This device doesn\'t support Camera2 API.</string>
+
+    <string name="position">position</string>
+
+    <string name="blurmessage">"Image is Blurry.\n Please take another picture"</string>
+
+    <string name="dragNdropfolder">dragNdrop</string>
+
+    <string name="basepackagename">LeafRecognizer</string>
+
+    <string name="circle_time">5000</string>
+    <string name="flip_time">1500</string>
+    <string name="animation_type">animation_type</string>
+    <string name="circle_animation">circle_animation</string>
+    <string name="flip_animation">flip_animation</string>
+
+</resources>
