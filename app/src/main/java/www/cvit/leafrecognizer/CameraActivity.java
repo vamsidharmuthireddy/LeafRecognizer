@@ -1,6 +1,8 @@
 package www.cvit.leafrecognizer;
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,6 +14,9 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 public class CameraActivity extends AppCompatActivity {
+
+    private static final int PERMISSIONS_REQUEST_CAMERA = 6;
+    private String LOGTAG = "CameraActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +37,11 @@ public class CameraActivity extends AppCompatActivity {
                     .replace(R.id.container, Camera2BasicFragment.newInstance())
                     .commit();
         }
+
+
+
+
+
     }
 
     private void requestWritePermission() {
@@ -63,4 +73,16 @@ public class CameraActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Auto-generated method stub
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+    }
+
+
+
+
 }

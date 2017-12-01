@@ -3,6 +3,7 @@ package www.cvit.leafrecognizer;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -59,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.openCamera) {
             Intent takePicture = new Intent(MainActivity.this, CameraActivity.class);
             startActivity(takePicture);
+//            Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+//            startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+            Log.v(LOGTAG,"Called an intent");
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -158,9 +162,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    protected void onActivityResult(int requestcode, int resultcode,Intent data)//Called after the intent
+    protected void onActivityResult(int requestCode, int resultCode,Intent data)//Called after the intent
     {
-        super.onActivityResult(requestcode, resultcode,data);
+        super.onActivityResult(requestCode, resultCode,data);
+        Bitmap thumbnail = null;
+        Log.v(LOGTAG,"requestCode"+requestCode);
+        if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
+
+            if (resultCode == RESULT_OK) {
+
+                thumbnail = (Bitmap) data.getExtras().get("data");
+                if(thumbnail != null){
+                    Log.v(LOGTAG,"data sent is not null");
+                }else{
+                    Log.v(LOGTAG,"data sent is null");
+                }
+
+                Intent i = new Intent(this, AnnotationActivity.class);
+                i.putExtra("outImage", thumbnail);
+                startActivity(i);
+
+
+
+            }
+
+        }
 
     }
 
