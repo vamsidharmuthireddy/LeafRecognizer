@@ -17,7 +17,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,7 +36,8 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
     public Activity activity;
     private String num;
     private String inputImageFilePath;
-    private Bitmap outputImageBitmap;
+    private Bitmap resultBitmap;
+    private String resultString;
     private String resLocation;
 
     private File mFile;
@@ -157,7 +157,7 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
         try {
             output = new FileOutputStream(resFile);
             BufferedOutputStream bos = new BufferedOutputStream(output);
-            outputImageBitmap.compress(Bitmap.CompressFormat.JPEG, 75, bos);
+            resultBitmap.compress(Bitmap.CompressFormat.JPEG, 75, bos);
             bos.flush();
             bos.close();
         } catch (IOException e) {
@@ -179,19 +179,22 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
     private void getResultAnnotation(HttpURLConnection conn) {
         try {
             InputStream is = conn.getInputStream();
-//            BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
-//            String s = "";
-//            String out = "";
-//            while ((s = buffer.readLine()) != null){
-//                out += s;
-//            }
-//            is.close();
             Log.v(LOGTAG,is.toString());
-            //get result image from server
-            Bitmap out = BitmapFactory.decodeStream(is);
-            outputImageBitmap = out;
+            BufferedReader buffer = new BufferedReader(new InputStreamReader(is));
+            String s = "";
+            String out = "";
+            while ((s = buffer.readLine()) != null){
+                out += s;
+            }
             is.close();
-            saveResultImage();
+            String parts[] = out.split("<br/>");
+            Log.v(LOGTAG,parts[parts.length-1]);
+            resultString = parts[parts.length-1];
+//            get result image from server
+//            Bitmap outBitmap = BitmapFactory.decodeStream(is);
+//            resultBitmap = outBitmap;
+//            is.close();
+//            saveResultImage();
 //            return out;
 
         } catch (IOException var4) {
@@ -242,14 +245,16 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
         progressDialog.dismiss();
 
         Intent callAnnotation = new Intent(context, AnnotationActivity.class);
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        outputImageBitmap.compress(Bitmap.CompressFormat.JPEG,50,bs);
-        callAnnotation.putExtra("outImage", bs.toByteArray());
-
-        callAnnotation.putExtra("res_loc", resLocation);
         callAnnotation.putExtra("query_loc", inputImageFilePath);
 
-      activity.startActivity(callAnnotation);
+//        ByteArrayOutputStream bs = new ByteArrayOutputStream();
+//        resultBitmap.compress(Bitmap.CompressFormat.JPEG,50,bs);
+//        callAnnotation.putExtra("outImage", bs.toByteArray());
+//        callAnnotation.putExtra("res_loc", resLocation);
+
+        callAnnotation.putExtra("resultString", resultString);
+
+        activity.startActivity(callAnnotation);
 
 
 
