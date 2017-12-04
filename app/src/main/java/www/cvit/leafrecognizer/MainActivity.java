@@ -1,11 +1,15 @@
 package www.cvit.leafrecognizer;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,6 +19,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,10 +64,22 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.openCamera) {
-            Intent takePicture = new Intent(MainActivity.this, CameraActivity.class);
-            startActivity(takePicture);
-//            Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-//            startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+//            Intent takePicture = new Intent(MainActivity.this, CameraActivity.class);
+//            startActivity(takePicture);
+
+            File saveFile = new File(Environment.getExternalStorageDirectory(),
+                    getString(R.string.save_name));
+//            String saveName = Environment.getExternalStorageDirectory().toString()
+//                    + File.separator + getString(R.string.save_name);
+
+
+            Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            takePicture.putExtra(MediaStore.EXTRA_OUTPUT,Uri.fromFile(saveFile));
+            startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+
+            Log.v(LOGTAG,Uri.fromFile(saveFile).toString());
             Log.v(LOGTAG,"Called an intent");
             return true;
         }
@@ -166,20 +184,21 @@ public class MainActivity extends AppCompatActivity {
     {
         super.onActivityResult(requestCode, resultCode,data);
         Bitmap thumbnail = null;
-        Log.v(LOGTAG,"requestCode"+requestCode);
+        Log.v(LOGTAG,"requestCode: "+requestCode);
         if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
 
             if (resultCode == RESULT_OK) {
 
-                thumbnail = (Bitmap) data.getExtras().get("data");
-                if(thumbnail != null){
-                    Log.v(LOGTAG,"data sent is not null");
-                }else{
-                    Log.v(LOGTAG,"data sent is null");
-                }
+//                thumbnail = (Bitmap) data.getExtras().get("data");
+//                if(thumbnail != null){
+//                    Log.v(LOGTAG,"data sent is not null");
+//                }else{
+//                    Log.v(LOGTAG,"data sent is null");
+//                }
 
-                Intent i = new Intent(this, AnnotationActivity.class);
-                i.putExtra("outImage", thumbnail);
+                Intent i = new Intent(this, CameraActivityInbuilt.class);
+//                i.putExtra("outImage", thumbnail);
+                i.putExtra("from","MainActivity");
                 startActivity(i);
 
 
