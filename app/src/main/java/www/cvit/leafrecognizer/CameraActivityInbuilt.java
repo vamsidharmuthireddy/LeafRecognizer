@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -39,19 +40,6 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_inbuilt);
-
-//        if(getIntent().hasExtra("outImage")) {
-//            Log.v(LOGTAG,"There is data");
-//            Bitmap result_bitmap = getIntent().getExtras().getParcelable("outImage");
-//            if(result_bitmap != null){
-//                Log.v(LOGTAG,"data received is not null");
-//            }else{
-//                Log.v(LOGTAG,"data received is null");
-//            }
-//            queryImage = result_bitmap;
-//        }else{
-//            Log.v(LOGTAG,"There is no data");
-//        }
 
         String saveName = Environment.getExternalStorageDirectory().toString()
                 + File.separator + getString(R.string.save_name);
@@ -92,7 +80,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu mMenu) {
         menu = mMenu;
         menuItem = menu.findItem(R.id.cropPicture);
-//        menuItem.setVisible(false);
+        menuItem.setVisible(true);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -104,11 +92,22 @@ public class CameraActivityInbuilt extends AppCompatActivity {
             Log.v(LOGTAG,cropRect.left+" "+cropRect.top
                     +" "+cropRect.width()+" "+cropRect.height());
             Bitmap croppedImage = cropImageView.getCroppedImage(cropRect.width(),cropRect.height());
-
+            item.setVisible(false);
+            dispCropImage(croppedImage);
             saveImage(croppedImage);
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void dispCropImage(Bitmap croppedImage){
+        cropImageView.setVisibility(View.INVISIBLE);
+        ImageView cropImageView = (ImageView)findViewById(R.id.crop_result);
+        cropImageView.setImageBitmap(croppedImage);
+        cropImageView.setVisibility(View.VISIBLE);
+//        MenuItem menuItem = findViewById(R.id.cropPicture);
+//        menuItem.setVisible(false);
+
     }
 
     public void getBitmap(String path) {
@@ -151,40 +150,5 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         contactServer.execute(croppedFile.toString());
     }
 
-
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-//    }
-//
-//    /** Start pick image activity with chooser. */
-//    public void onSelectImageClick(View view) {
-//        CropImage.activity()
-//                .setGuidelines(CropImageView.Guidelines.ON)
-//                .setActivityTitle("My Crop")
-//                .setCropShape(CropImageView.CropShape.OVAL)
-//                .setCropMenuCropButtonTitle("Done")
-//                .setRequestedSize(400, 400)
-//                .setCropMenuCropButtonIcon(R.drawable.ic_leaf)
-//                .start(this);
-//    }
-//
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//
-//        // handle result of CropImageActivity
-//        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-//            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-//            if (resultCode == RESULT_OK) {
-//                ((ImageView) findViewById(R.id.quick_start_cropped_image)).setImageURI(result.getUri());
-//                Toast.makeText(
-//                        this, "Cropping successful, Sample: " + result.getSampleSize(), Toast.LENGTH_LONG)
-//                        .show();
-//            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-//                Toast.makeText(this, "Cropping failed: " + result.getError(), Toast.LENGTH_LONG).show();
-//            }
-//        }
-//    }
 
 }

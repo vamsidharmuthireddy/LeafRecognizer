@@ -256,10 +256,6 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
 
         activity.startActivity(callAnnotation);
 
-
-
-
-
     }
 
 

@@ -37,29 +37,7 @@ public class AnnotationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_annotation);
         Log.v(LOGTAG,"here in annotation");
-//        if(getIntent().hasExtra("outImage")) {
-//            Log.v(LOGTAG,"There is data");
-//            Bitmap result_bitmap = getIntent().getExtras().getParcelable("outImage");
-//            if(result_bitmap != null){
-//                Log.v(LOGTAG,"data received is not null");
-//            }else{
-//                Log.v(LOGTAG,"data received is null");
-//            }
-//            resultImageView = (ImageView) findViewById(R.id.result_image);
-//            resultImageView.setImageBitmap(result_bitmap);
-//        }
 
-
-//        if(getIntent().hasExtra("outImage")) {
-//            resultImageView_1 = (ImageView)findViewById(R.id.result_image);
-//            Bitmap result_bitmap = BitmapFactory.decodeByteArray(
-//                    getIntent().getByteArrayExtra("outImage"),
-//                    0,getIntent().getByteArrayExtra("outImage").length);
-//            resultImageView_1.setImageBitmap(result_bitmap);
-//        }
-//
-//        String resLocation = getIntent().getStringExtra("res_loc");
-//
         File imgFile = new  File(getIntent().getStringExtra("query_loc"));
 
         if(imgFile.exists()){
