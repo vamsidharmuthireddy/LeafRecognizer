@@ -25,4 +25,25 @@
     <string name="circle_animation">circle_animation</string>
     <string name="flip_animation">flip_animation</string>
 
+
+    <string name="all_permissions_open_settings">Please allow Heritage required permissions in App Settings</string>
+
+    <string name="xml_extension" translatable="false">.xml</string>
+    <string name="interestpoint_name" translatable="false">interestpoint_name</string>
+    <string name="interest_point_title" translatable="false">title</string>
+
+    <string name="id">Id</string>
+    <string name="scientific_name">Scientific_Name</string>
+    <string name="common_name">Common_Name</string>
+    <string name="family">Family</string>
+    <string name="leaf_shape">Leaf_Shape</string>
+    <string name="leaf_margin">Leaf_margin_edge</string>
+    <string name="leaf_division">Leaf_Division</string>
+    <string name="description">Description</string>
+    <string name="utility">Utility</string>
+    <string name="common_diseases">Common_diseases_and_Pests</string>
+    <string name="leaf">leaf</string>
+
+
+
 </resources>

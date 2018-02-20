@@ -8,10 +8,10 @@
     android:background="@color/colorBlue">
 
 
-    <!--<include-->
-        <!--layout="@layout/tool_bar"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
+    <include
+        layout="@layout/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <RelativeLayout
         android:id="@+id/main_container"

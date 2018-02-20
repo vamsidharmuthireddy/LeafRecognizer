@@ -40,8 +40,8 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
 
         public DataObjectHolder(View view) {
             super(view);
-            this.imageView = (ImageView) view.findViewById(R.id.cardview_monument_image);
-            this.textView = (TextView) view.findViewById(R.id.cardview_monument_text);
+            this.imageView = (ImageView) view.findViewById(R.id.result_image);
+            this.textView = (TextView) view.findViewById(R.id.result_text);
         }
     }
 

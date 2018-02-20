@@ -46,7 +46,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
         recyclerView.setLayoutManager(recyclerViewLayoutManager);
 
         //setting the view of the PLACES tab
-        recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this);
+//        recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this);
         recyclerViewAdapter.setHasStableIds(true);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());

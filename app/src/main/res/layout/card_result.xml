@@ -28,31 +28,29 @@
                 android:layout_weight="0.4">
 
                 <ImageView
-                    android:id="@+id/cardview_monument_image"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
+                    android:id="@+id/result_image"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:layout_marginBottom="@dimen/activity_std_padding"
                     android:src="@drawable/leaf"
-                    android:scaleType="fitCenter" />
+                    android:scaleType="centerCrop" />
 
             </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="0.6"
             android:gravity="center">
             <TextView
-                android:id="@+id/cardview_monument_text"
+                android:id="@+id/result_text"
                 android:layout_below="@+id/cardview_monument_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
                 android:gravity="center"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:textColor="@color/colorBlack"
-                android:background="@android:color/white"
-                android:backgroundTint=""/>
+                android:background="@android:color/darker_gray"/>
 
         </LinearLayout>
 
