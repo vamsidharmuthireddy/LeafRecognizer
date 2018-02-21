@@ -32,18 +32,31 @@
     <string name="interestpoint_name" translatable="false">interestpoint_name</string>
     <string name="interest_point_title" translatable="false">title</string>
 
-    <string name="id">Id</string>
-    <string name="scientific_name">Scientific_Name</string>
-    <string name="common_name">Common_Name</string>
+    <string name="id_tag">Id</string>
+    <string name="scientific_name_tag">Scientific_Name</string>
+    <string name="common_name_tag">Common_Name</string>
+    <string name="family_tag">Family</string>
+    <string name="leaf_shape_tag">Leaf_Shape</string>
+    <string name="leaf_margin_tag">Leaf_margin_edge</string>
+    <string name="leaf_division_tag">Leaf_Division</string>
+    <string name="description_tag">Description</string>
+    <string name="utility_tag">Utility</string>
+    <string name="common_diseases_tag">Common_diseases_and_Pests</string>
+    <string name="leaf_tag">leaf</string>
+
+
+    <string name="scientific_name">Scientific Name</string>
+    <string name="common_name">Common Name</string>
     <string name="family">Family</string>
-    <string name="leaf_shape">Leaf_Shape</string>
-    <string name="leaf_margin">Leaf_margin_edge</string>
-    <string name="leaf_division">Leaf_Division</string>
+    <string name="leaf_shape">Leaf Shape</string>
+    <string name="leaf_margin">Leaf Margin</string>
+    <string name="leaf_division">Leaf Division</string>
     <string name="description">Description</string>
     <string name="utility">Utility</string>
-    <string name="common_diseases">Common_diseases_and_Pests</string>
-    <string name="leaf">leaf</string>
+    <string name="common_diseases">Common Diseases and Pests</string>
+    <string name="leaf">Leaf</string>
 
-
+    <string name="image_url">image_url</string>
+    <string name="leaf_name">leaf_name</string>
 
 </resources>

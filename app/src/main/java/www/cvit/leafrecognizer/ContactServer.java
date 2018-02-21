@@ -97,7 +97,7 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
                 dos.writeBytes(lineEnd);
 
                 int bytesAvailable = fileInputStream.available();
-                int maxBufferSize = 1024;
+                int maxBufferSize = 1024*1024;
                 int bufferSize = Math.min(bytesAvailable, maxBufferSize);
                 byte[] buffer = new byte[bufferSize];
 
@@ -118,7 +118,7 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
                 final int server_response_code = conn.getResponseCode();
                 Log.v(LOGTAG,"Server response code: "+server_response_code);
-                if(server_response_code==200){
+                if(server_response_code >= 200 &&  server_response_code < 400){
                     activity.runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(context,"Connection Successfull: "+server_response_code,
