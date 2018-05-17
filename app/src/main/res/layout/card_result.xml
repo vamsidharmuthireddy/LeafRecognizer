@@ -32,7 +32,7 @@
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:layout_marginBottom="@dimen/activity_std_padding"
-                    android:src="@drawable/leaf"
+                    android:src="@drawable/ic_leaf"
                     android:scaleType="centerCrop" />
 
             </LinearLayout>

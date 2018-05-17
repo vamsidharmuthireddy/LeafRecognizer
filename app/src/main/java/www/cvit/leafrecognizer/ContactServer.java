@@ -255,6 +255,7 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
         callAnnotation.putExtra("resultString", resultString);
 
         activity.startActivity(callAnnotation);
+        activity.finish();
 
     }
 

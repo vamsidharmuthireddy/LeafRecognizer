@@ -2,11 +2,16 @@ package www.cvit.leafrecognizer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Camera;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -14,6 +19,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -38,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private int totalPermissions = 0;
     private boolean storageRequested = false;
     private boolean cameraRequested = false;
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,14 +89,29 @@ public class MainActivity extends AppCompatActivity {
 
 
             Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            takePicture.putExtra(MediaStore.EXTRA_OUTPUT,Uri.fromFile(saveFile));
-            startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+            if (saveFile != null){
+//                Uri photoURI = Uri.fromFile(saveFile);
+                Log.v(LOGTAG,BuildConfig.APPLICATION_ID);
+                Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        saveFile);
 
-            Log.v(LOGTAG,Uri.fromFile(saveFile).toString());
-            Log.v(LOGTAG,"Called an intent");
-            return true;
+
+                takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
+                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                takePicture.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
+                mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+                mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+
+                startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+
+                Log.v(LOGTAG,Uri.fromFile(saveFile).toString());
+                Log.v(LOGTAG,"Called an intent");
+                return true;
+
+            }
+
+            return false;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -206,6 +230,7 @@ public class MainActivity extends AppCompatActivity {
 //                i.putExtra("outImage", thumbnail);
                 i.putExtra("from","MainActivity");
                 startActivity(i);
+                finish();
 
 
 

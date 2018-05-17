@@ -42,24 +42,6 @@ public class AnnotationActivity extends AppCompatActivity {
             "http://preon.iiit.ac.in/~vamsidhar_muthireddy/leaf_recognizer_router/title_images/";
     private String extension = ".jpg";
 
-    /**
-     * Functioning of Back arrow shown in toolbar
-     *
-     * @return
-     */
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent intent = new Intent(AnnotationActivity.this, MainActivity.class);
-        startActivity(intent);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,8 +81,25 @@ public class AnnotationActivity extends AppCompatActivity {
         loadImages();
     }
 
-//    @GlideModule
-//    public final class MyAppGlideModule extends AppGlideModule {}
+
+    /**
+     * Functioning of Back arrow shown in toolbar
+     *
+     * @return
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(AnnotationActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
     private void loadImages(){
         result_url = new String[5];

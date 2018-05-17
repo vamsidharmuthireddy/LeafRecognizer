@@ -1,14 +1,25 @@
 package www.cvit.leafrecognizer;
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.ExifInterface;
 import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -38,6 +49,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     public static Menu menu;
     public static MenuItem menuItem;
     private CropImageView cropImageView;
+    private int MAX_SIZE = 960;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,8 +128,28 @@ public class CameraActivityInbuilt extends AppCompatActivity {
 
     }
 
+    private void rotateImage(String path){
+        try {
+            ExifInterface exifInterface = new ExifInterface(path);
+            String orientString = exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION);
+//            int orientation = orientString != null ? Integer.parseInt(orientString) :  ExifInterface.ORIENTATION_NORMAL;
+
+            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL);
+
+            Log.v(LOGTAG,"Orientation : "+orientation);
+//            CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+//            CameraCharacteristics cameraCharacteristics = manager.getCameraCharacteristics("" + 0)
+
+        }catch (IOException e){
+            Log.e(LOGTAG,"IO exception: "+e.getMessage());
+        }
+
+    }
+
     public void getBitmap(String path) {
         try {
+            rotateImage(path);
             Bitmap bitmap=null;
             File f= new File(path);
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -131,7 +163,26 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         }
     }
 
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        Log.v(LOGTAG,"Old: "+width+" X "+height);
+
+        float bitmapRatio = (float)width / (float) height;
+        if (bitmapRatio >= 1 && width>=MAX_SIZE) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else if(bitmapRatio < 1 && height>=MAX_SIZE){
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        Log.v(LOGTAG,"New: "+width+" X "+height);
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
+
     private void saveImage(Bitmap cropped){
+
         File croppedFile = new File(Environment.getExternalStorageDirectory(),
                 getString(R.string.save_name));
         if (croppedFile == null) {
@@ -139,8 +190,12 @@ public class CameraActivityInbuilt extends AppCompatActivity {
             return;
         }
         try {
+
             FileOutputStream fos = new FileOutputStream(croppedFile);
-            cropped.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+//            cropped.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+            Bitmap temp = getResizedBitmap(cropped, MAX_SIZE);
+            temp.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+
             Log.v(LOGTAG,"croppedFile: "+croppedFile.toString());
             fos.close();
             sendToServer(croppedFile);
