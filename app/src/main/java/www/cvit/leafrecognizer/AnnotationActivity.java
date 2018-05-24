@@ -102,7 +102,7 @@ public class AnnotationActivity extends AppCompatActivity {
     }
 
     private void loadImages(){
-        result_url = new String[5];
+
         result_url[0] = baseURL+resultString[0]+extension;
         result_url[1] = baseURL+resultString[1]+extension;
         result_url[2] = baseURL+resultString[2]+extension;
@@ -181,7 +181,7 @@ public class AnnotationActivity extends AppCompatActivity {
     }
 
     private void loadleaf(){
-        resultName = new String[5];
+//        resultName = new String[5];
         PackageReader reader;
 
         reader = new PackageReader(AnnotationActivity.this);
@@ -209,8 +209,6 @@ public class AnnotationActivity extends AppCompatActivity {
                 Log.v("result2 ",resultName[2]);
             }
         }
-
-        //ArrayList<InterestPoint> interestPointsList = new PackageContentActivity().giveMonumentList();
 
     }
 

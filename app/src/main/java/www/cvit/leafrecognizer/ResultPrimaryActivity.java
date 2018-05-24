@@ -1,6 +1,10 @@
 package www.cvit.leafrecognizer;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -8,10 +12,13 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static java.security.AccessController.getContext;
@@ -26,15 +33,75 @@ public class ResultPrimaryActivity extends AppCompatActivity{
     private RecyclerView.Adapter recyclerViewAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
 
-    private static final String LOGTAG = "MonumentAllFragment";
+    private static final String LOGTAG = "ResultPrimaryActivity";
+
+    private String[] resultString = new String[10];
+    private String[] resultName = new String[10];
+    private String[] result_url = new String[10];
+    private ImageView queryImageView;
+    private Toolbar toolbar;
+
+    private ArrayList<LeafInfo> leafInfo;
+
+    private String baseURL =
+            "http://preon.iiit.ac.in/~vamsidhar_muthireddy/leaf_recognizer_router/title_images/";
+    private String extension = ".jpg";
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result_primary);
 
-        //interestPoints = ((PackageContentActivity) this.getActivity()).giveMonumentList();
-        //interestPoints = new MonumentActivity().monumentList;
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Results");
+        toolbar.setBackgroundColor(Color.WHITE);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        File imgFile = new  File(getIntent().getStringExtra("query_loc"));
+
+        if(imgFile.exists()){
+
+            Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            queryImageView = (ImageView) findViewById(R.id.query_image);
+            queryImageView.setImageBitmap(myBitmap);
+//            Glide.with(this).load(myBitmap).into(queryImageView);
+
+            queryImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent openImage = new Intent(ResultPrimaryActivity.this,
+                            FullScreenImageActivity.class);
+                    openImage.putExtra("imageURL", getIntent().getStringExtra("query_loc"));
+                    startActivity(openImage);
+                }
+            });
+
+        }
+
+
+        if(getIntent().hasExtra("resultString")) {
+            String result = getIntent().getStringExtra("resultString");
+
+            Log.v(LOGTAG,"result = "+result);
+            if (result==null){
+                for (int i=0;i<resultString.length;i++){
+                    resultString[i] = "1";
+                }
+            }else {
+                resultString = result.split("\t");
+            }
+
+            for (int i=0;i<resultString.length;i++){
+                result_url[i] = baseURL+resultString[i]+extension;
+            }
+
+        }
+
+        loadleaf();
 
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerview_result_primary);
@@ -45,7 +112,9 @@ public class ResultPrimaryActivity extends AppCompatActivity{
 
         recyclerView.setLayoutManager(recyclerViewLayoutManager);
 
-        //setting the view of the PLACES tab
+        recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this,
+                                leafInfo, resultString);
+
 //        recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this);
         recyclerViewAdapter.setHasStableIds(true);
         recyclerView.setAdapter(recyclerViewAdapter);
@@ -93,6 +162,46 @@ public class ResultPrimaryActivity extends AppCompatActivity{
             }
             return mOrientationHelper.getTotalSpace() * mPages;
         }
+    }
+
+
+    private void loadleaf(){
+        PackageReader reader;
+
+        reader = new PackageReader(ResultPrimaryActivity.this);
+
+        leafInfo = reader.getLeafList();
+
+        Log.v(LOGTAG, "interestPointsList size is " + leafInfo.size());
+
+        LeafInfo leaf;
+        for (int i = 0; i < resultString.length; i++) {
+            leaf = leafInfo.get(Integer.parseInt(resultString[i]) - 1);
+            resultName[i] = leaf.getLeaf(getString(R.string.scientific_name_tag));
+
+            Log.v(LOGTAG, resultString[i]+" "+Integer.parseInt(resultString[i])+" Id " + leaf.getLeaf(getString(R.string.id_tag))+" " +resultName[i]);
+
+        }
+
+    }
+
+    /**
+     * Functioning of Back arrow shown in toolbar
+     *
+     * @return
+     */
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(ResultPrimaryActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
 

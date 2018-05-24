@@ -14,6 +14,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,7 +47,7 @@ public class ResultDetailActivity extends AppCompatActivity{
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private String language;
     private String leafName;
-    private String imageUrl;
+    private String imageURL;
 
     private String packageName;
     private String packageName_en;
@@ -75,9 +76,9 @@ public class ResultDetailActivity extends AppCompatActivity{
         //we are getting tha name of the interest point that was clicked
         Intent intent = getIntent();
         leafName = intent.getStringExtra(getString(R.string.leaf_name));
-        imageUrl = intent.getStringExtra(getString(R.string.image_url));
+        imageURL = intent.getStringExtra(getString(R.string.image_url));
 
-        //loading the relevant interest point
+        //loading the relevant leaf
         leafInfo = LoadInterestPoint(leafName);
         Log.v(LOGTAG, "clicked leaf is " + leafName);
 
@@ -125,11 +126,19 @@ public class ResultDetailActivity extends AppCompatActivity{
 
     private void setListeners() {
 
-        Log.v(LOGTAG, "Entered Monuments");
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent openImage = new Intent(ResultDetailActivity.this,
+                        FullScreenImageActivity.class);
+                openImage.putExtra("imageURL", imageURL);
+                startActivity(openImage);
+            }
+        });
 
 //        imageView.setImageBitmap(setBitmap);
 //        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(this).load(imageUrl).asBitmap()
+        Glide.with(this).load(imageURL).asBitmap()
                 .placeholder(R.drawable.leaf).into(imageView);
 
         text_scientific_name.setText(leafInfo.getLeaf(getString(R.string.scientific_name_tag)));
@@ -177,7 +186,7 @@ public class ResultDetailActivity extends AppCompatActivity{
      */
     public LeafInfo LoadInterestPoint(String interestPointName) {
 
-        interestPointName = interestPointName;
+//        interestPointName = interestPointName;
 
         PackageReader reader;
         reader = new PackageReader(ResultDetailActivity.this);
@@ -186,7 +195,7 @@ public class ResultDetailActivity extends AppCompatActivity{
         leavesList = reader.getLeafList();
 
         Log.v(LOGTAG, "clicked point is " + interestPointName);
-        Log.v(LOGTAG, "leavesList size is " + leavesList.size());
+//        Log.v(LOGTAG, "leavesList size is " + leavesList.size());
 
         LeafInfo leafInfo;
         for (int i = 0; i < leavesList.size(); i++) {

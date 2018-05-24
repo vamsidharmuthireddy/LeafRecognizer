@@ -28,10 +28,17 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
      * This class is called from InterestPointsFragment after we get all the interest points
      * This class sets the picture and text(Title) on the InterestPointsFragment's recycler view
      */
+
+    private static final String LOGTAG = "ResultPrimaryAdapter";
+
     private Context context;
-//    private ArrayList<InterestPoint> interestPoints;
-    private String packageName_en;
-    private static final String LOGTAG = "MonumentAllAdapter";
+    private ArrayList<LeafInfo> leafInfo;
+    private String[] resultString = new String[10];
+    private String[] resultName = new String[10];
+    private String baseURL =
+            "http://preon.iiit.ac.in/~vamsidhar_muthireddy/leaf_recognizer_router/title_images/";
+    private String extension = ".jpg";
+
 
     public static class DataObjectHolder extends RecyclerView.ViewHolder {
 
@@ -45,17 +52,18 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
         }
     }
 
-    public ResultPrimaryAdapter(Context _context) {
-        context = _context;
-        notifyDataSetChanged();
-    }
-
-//    public ResultPrimaryAdapter(ArrayList<InterestPoint> interestPoints, Context _context, String _packageName_en) {
+//    public ResultPrimaryAdapter(Context _context) {
 //        context = _context;
-//        packageName_en = _packageName_en;
-//        this.interestPoints = interestPoints;
 //        notifyDataSetChanged();
 //    }
+
+    public ResultPrimaryAdapter(Context _context, ArrayList<LeafInfo> leafInfo,
+                                String[] resultString) {
+        context = _context;
+        this.leafInfo = leafInfo;
+        this.resultString = resultString;
+        notifyDataSetChanged();
+    }
 
     @Override
     public DataObjectHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -67,31 +75,31 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
     @Override
     public void onBindViewHolder(DataObjectHolder holder, int position) {
 
-
         setViews(holder, position);
-//        setListeners(holder, position);
+        setListeners(holder, position);
 
 
     }
 
     private void setViews(DataObjectHolder holder, int position) {
 
-        //SessionManager sessionManager = new SessionManager();
-        //final String packageName = sessionManager
-        //        .getStringSessionPreferences(
-        //                context, context.getString(R.string.package_name_en), context.getString(R.string.default_package_value));
-
-        final String packageName = packageName_en;
         ImageView imageView = holder.imageView;
         TextView textView = holder.textView;
 
-//        textView.setText(interestPoints.get(position).getMonument(context.getString(R.string.interest_point_title)));
+
+        LeafInfo leaf;
+        leaf = leafInfo.get(Integer.parseInt(resultString[position]) - 1);
+        resultName[position] = leaf.getLeaf(context.getString(R.string.scientific_name_tag));
+        textView.setText(resultName[position]);
 
 
-//        String imagePath = interestPoints.get(position)
-//                .getMonumentTitleImagePath(packageName_en, holder.textView.getText().toString(), context);
+        String imageURL = baseURL+resultString[position]+extension;
+//        Log.v(LOGTAG,resultString)
 
-//        Log.v(LOGTAG, "imagePath = " + imagePath);
+        Log.v(LOGTAG, "position = "+position+"imagePath = " + imageURL);
+
+        Glide.with(context).load(imageURL).asBitmap()
+                .placeholder(R.drawable.leaf).into(imageView);
 
 //        if (imagePath == null) {
 //            Glide.with(context)
@@ -119,71 +127,57 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
     }
 
 
-//    private void setListeners(DataObjectHolder _holder, int _position) {
-//
-//        final DataObjectHolder holder = _holder;
-//        final int position = _position;
-//
-//
-//        holder.imageView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                String interestPointTitle = holder.textView.getText().toString();
-//
-//                Log.v(LOGTAG, v.getId() + " is clicked" + " position= " + position + " packageName = " + interestPointTitle);
-//
-//                Intent openMonument = new Intent(context, InterestPointActivity.class);
-//                openMonument.putExtra(context.getString(R.string.interestpoint_name), interestPointTitle);
-//                openMonument.putExtra(context.getString(R.string.package_name_en), packageName_en);
-//                openMonument.putExtra(context.getString(R.string.interest_point_type), context.getString(R.string.monument));
-//                //context.startActivity(openMonument);
-//                int startX = (int) v.getX();
-//                int startY = (int) v.getY();
-//                int width = v.getWidth();
-//                int height = v.getHeight();
-//                ActivityOptions options = ActivityOptions.makeScaleUpAnimation(v, startX, startY, width, height);
-//                context.startActivity(openMonument, options.toBundle());
-//
-//            }
-//        });
-//
-//
-//        holder.textView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                String interestPointTitle = holder.textView.getText().toString().toLowerCase();
-//
-//                Log.v(LOGTAG, v.getId() + " is clicked" + " position= " + position + " packageName = " + interestPointTitle);
-//
-//                Intent openMonument = new Intent(context, InterestPointActivity.class);
-//                openMonument.putExtra(context.getString(R.string.interestpoint_name), interestPointTitle);
-//                openMonument.putExtra(context.getString(R.string.package_name_en), packageName_en);
-//                openMonument.putExtra(context.getString(R.string.interest_point_type), context.getString(R.string.monument));
-//                //context.startActivity(openMonument);
-//                int startX = (int) v.getX();
-//                int startY = (int) v.getY();
-//                int width = v.getWidth();
-//                int height = v.getHeight();
-//                ActivityOptions options = ActivityOptions.makeScaleUpAnimation(v, startX, startY, width, height);
-//                context.startActivity(openMonument, options.toBundle());
-//
-//            }
-//        });
-//
-//    }
+    private void setListeners(DataObjectHolder _holder, int _position) {
 
+        final DataObjectHolder holder = _holder;
+        final int position = _position;
+
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String leafName = holder.textView.getText().toString().toLowerCase();
+                String imageURL = baseURL+resultString[position]+extension;
+
+                Log.v(LOGTAG, v.getId() + " is clicked" + " position= " + position
+                        + " leafName = " + leafName);
+
+                Intent openImage = new Intent(context,
+                        FullScreenImageActivity.class);
+                openImage.putExtra("imageURL", imageURL);
+                context.startActivity(openImage);
+            }
+        });
+
+
+        holder.textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String leafName = holder.textView.getText().toString().toLowerCase();
+                String imageURL = baseURL+resultString[position]+extension;
+
+                Log.v(LOGTAG, v.getId() + " is clicked" + " position= " + position
+                        + " leafName = " + leafName);
+
+                Intent intent = new Intent(context,ResultDetailActivity.class);
+                intent.putExtra(context.getString(R.string.leaf_name),resultName[position]);
+                intent.putExtra(context.getString(R.string.image_url), imageURL);
+                context.startActivity(intent);
+            }
+        });
+
+    }
+
+
+//    @Override
+//    public int getItemCount() {
+//        return 0;
+//    }
 
     @Override
     public int getItemCount() {
-        return 0;
+//        Log.v(LOGTAG,leafInfo.size()+"");
+        return resultString.length;
     }
-//
-//    @Override
-//    public int getItemCount() {
-//        return interestPoints.size();
-//    }
 
     @Override
     public long getItemId(int position) {

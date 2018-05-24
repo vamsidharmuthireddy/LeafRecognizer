@@ -49,11 +49,11 @@
             android:name=".CameraActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="landscape"
-            android:theme="@style/Theme.AppCompat.NoActionBar"></activity>
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
         <uses-library
             android:name="com.sec.android.app.multiwindow"
-            android:required="false"></uses-library>
+            android:required="false"/>
 
         <meta-data
             android:name="com.sec.android.support.multiwindow"
@@ -71,14 +71,16 @@
             android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H"
             android:value="598.0dip" />
 
-        <activity android:name=".AnnotationActivity"></activity>
+        <activity android:name=".AnnotationActivity"/>
 
-        <activity android:name=".CameraActivityInbuilt"></activity>
+        <activity android:name=".CameraActivityInbuilt"/>
 
         <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat"></activity>
+            android:theme="@style/Base.Theme.AppCompat"/>
 
-        <activity android:name=".ResultDetailActivity"></activity>
+        <activity android:name=".ResultDetailActivity"/>
+        <activity android:name=".ResultPrimaryActivity"/>
+        <activity android:name=".FullScreenImageActivity"/>
 
     </application>
 

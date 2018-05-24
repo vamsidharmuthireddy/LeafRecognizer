@@ -244,7 +244,9 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
     protected void onPostExecute(Void out) {
         progressDialog.dismiss();
 
-        Intent callAnnotation = new Intent(context, AnnotationActivity.class);
+//        Intent callAnnotation = new Intent(context, AnnotationActivity.class);
+        Intent callAnnotation = new Intent(context, ResultPrimaryActivity.class);
+
         callAnnotation.putExtra("query_loc", inputImageFilePath);
 
 //        ByteArrayOutputStream bs = new ByteArrayOutputStream();
