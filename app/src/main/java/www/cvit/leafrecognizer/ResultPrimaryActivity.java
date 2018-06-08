@@ -47,7 +47,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
             "http://preon.iiit.ac.in/~vamsidhar_muthireddy/leaf_recognizer_router/title_images/";
     private String extension = ".jpg";
 
-
+    private File imgFile;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        File imgFile = new  File(getIntent().getStringExtra("query_loc"));
+        imgFile = new  File(getIntent().getStringExtra("query_loc"));
 
         if(imgFile.exists()){
 
@@ -76,6 +76,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
                     Intent openImage = new Intent(ResultPrimaryActivity.this,
                             FullScreenImageActivity.class);
                     openImage.putExtra("imageURL", getIntent().getStringExtra("query_loc"));
+                    openImage.putExtra("query", "true");
                     startActivity(openImage);
                 }
             });
@@ -199,6 +200,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        imgFile.delete();
         Intent intent = new Intent(ResultPrimaryActivity.this, MainActivity.class);
         startActivity(intent);
         finish();

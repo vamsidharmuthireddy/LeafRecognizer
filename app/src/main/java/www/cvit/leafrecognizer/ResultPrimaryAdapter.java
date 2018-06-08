@@ -144,6 +144,7 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
                 Intent openImage = new Intent(context,
                         FullScreenImageActivity.class);
                 openImage.putExtra("imageURL", imageURL);
+                openImage.putExtra("query", "false");
                 context.startActivity(openImage);
             }
         });

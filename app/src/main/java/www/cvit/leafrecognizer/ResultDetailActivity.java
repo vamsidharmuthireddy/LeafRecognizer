@@ -132,6 +132,7 @@ public class ResultDetailActivity extends AppCompatActivity{
                 Intent openImage = new Intent(ResultDetailActivity.this,
                         FullScreenImageActivity.class);
                 openImage.putExtra("imageURL", imageURL);
+                openImage.putExtra("query", "false");
                 startActivity(openImage);
             }
         });

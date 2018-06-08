@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.signature.StringSignature;
 
 import java.util.ArrayList;
 
@@ -26,6 +28,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
 
     private ViewPager viewPager;
+    private final String LOGTAG="FullScreenImageActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String imageURL = intent.getStringExtra("imageURL");
+        Log.v(LOGTAG,"imageURL: "+imageURL);
 
 
         final TouchImageView imgDisplay;
@@ -44,8 +48,17 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
         imgDisplay = (TouchImageView) findViewById(R.id.imgDisplay);
 
-        Glide.with(this).load(imageURL).asBitmap()
-                .placeholder(R.drawable.leaf).into(imgDisplay);
+        if (intent.getStringExtra("query").equals("true")){
+            Glide.with(this).load(imageURL).asBitmap()
+                    .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+                    .placeholder(R.drawable.leaf).into(imgDisplay);
+
+        }else{
+            Glide.with(this).load(imageURL).asBitmap()
+//                    .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
+                    .placeholder(R.drawable.leaf).into(imgDisplay);
+        }
+
 
 //        Glide.with(this).load(imageURL).asBitmap().placeholder(R.drawable.leaf)
 //                .into(new SimpleTarget<Bitmap>() {
