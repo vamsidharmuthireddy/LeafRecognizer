@@ -49,7 +49,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     public static Menu menu;
     public static MenuItem menuItem;
     private CropImageView cropImageView;
-    private int MAX_SIZE = 960;
+    private int MAX_SIZE = 640;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
