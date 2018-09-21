@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean cameraRequested = false;
     private SensorManager mSensorManager;
     private Sensor mSensor;
+    public ImageClassifier classifier;
 
 
     @Override
@@ -58,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         checkAllPermissions();
+
+
 
     }
     @Override
@@ -120,9 +124,15 @@ public class MainActivity extends AppCompatActivity {
         //Setting Camera permissions
         if (checkCameraPermission()) {
             cameraRequested = true;
-            Log.v(LOGTAG, "MainActivity has Location permission");
+            Log.v(LOGTAG, "MainActivity has Camera permission");
+            try {
+                classifier = new ImageClassifier(MainActivity.this);
+                Log.v(LOGTAG,"Intialized the Classifier");
+            } catch (IOException e) {
+                Log.e(LOGTAG, "Failed to initialize an image classifier.");
+            }
         } else {
-            Log.v(LOGTAG, "MainActivity Requesting Location permission");
+            Log.v(LOGTAG, "MainActivity Requesting Camera permission");
             requestCameraPermission();
         }
         //Setting Storage permissions
@@ -229,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(this, CameraActivityInbuilt.class);
 //                i.putExtra("outImage", thumbnail);
                 i.putExtra("from","MainActivity");
+//                i.putExtra("classifier",classifier);
                 startActivity(i);
                 finish();
 
@@ -278,10 +289,16 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSIONS_REQUEST_CAMERA:
                 cameraRequested = true;
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.v(LOGTAG, "MainActivity has WRITE storage permissions");
+                    Log.v(LOGTAG, "MainActivity has Camera permissions");
+                    try {
+                        classifier = new ImageClassifier(MainActivity.this);
+                        Log.v(LOGTAG,"Intialized the Classifier");
+                    } catch (IOException e) {
+                        Log.e(LOGTAG, "Failed to initialize an image classifier.");
+                    }
                     totalPermissions = totalPermissions + 1;
                 } else {
-                    Log.v(LOGTAG, "MainActivity does not have WRITE storage permissions");
+                    Log.v(LOGTAG, "MainActivity does not have Camera permissions");
                     totalPermissions = totalPermissions - 1;
                     if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA)) {
                         //Log.v(LOGTAG,"4 if");

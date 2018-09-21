@@ -1,6 +1,7 @@
 package www.cvit.leafrecognizer;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -50,6 +51,8 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     public static MenuItem menuItem;
     private CropImageView cropImageView;
     private int MAX_SIZE = 640;
+    private Boolean runOffline = false;
+    private ImageClassifier classifier;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +61,11 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(Color.WHITE);
         setSupportActionBar(toolbar);
+
+        Intent intent = getIntent();
+        classifier = (ImageClassifier)intent.getSerializableExtra("classifier");
+//        classifier = new MainActivity().classifier;
+
 
         String saveName = Environment.getExternalStorageDirectory().toString()
                 + File.separator + getString(R.string.save_name);
@@ -102,6 +110,26 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         return super.onPrepareOptionsMenu(menu);
     }
 
+//    /**
+//     * Shows a {@link Toast} on the UI thread for the classification results.
+//     *
+//     * @param text The message to show
+//     */
+//    private void showToast(final String text) {
+//        final Activity activity = CameraActivityInbuilt.this;
+//        if (activity != null) {
+//            activity.runOnUiThread(
+//                    new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            textView.setText(text);
+//                        }
+//                    });
+//        }
+//    }
+
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -112,7 +140,19 @@ public class CameraActivityInbuilt extends AppCompatActivity {
             Bitmap croppedImage = cropImageView.getCroppedImage(cropRect.width(),cropRect.height());
             item.setVisible(false);
             dispCropImage(croppedImage);
-            saveImage(croppedImage);
+            if (runOffline){
+                if (classifier == null || croppedImage == null) {
+                    Toast.makeText(CameraActivityInbuilt.this,
+                            "Uninitialized Classifier or null bitmap.",Toast.LENGTH_LONG).show();
+                    return false;
+                }
+                String textToShow = classifier.classifyFrame(croppedImage);
+                Toast.makeText(CameraActivityInbuilt.this,textToShow,Toast.LENGTH_LONG).show();
+            }
+            else{
+                saveImage(croppedImage);
+
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
