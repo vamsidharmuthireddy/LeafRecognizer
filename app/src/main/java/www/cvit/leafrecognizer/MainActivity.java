@@ -26,16 +26,22 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String LOGTAG = "MainActivity";
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private static final int PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 2;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3;
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 4;
     private static final int Click = 5;
@@ -46,8 +52,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean storageRequested = false;
     private boolean cameraRequested = false;
     private SensorManager mSensorManager;
-    private Sensor mSensor;
     public static ImageClassifier classifier;
+    private Button openCamera;
+    private Switch modeSwitch;
+    private TextView modeSwitchText;
+    public static String queryLocation;
 
 
     @Override
@@ -55,70 +64,159 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(Color.WHITE);
-        setSupportActionBar(toolbar);
-
         checkAllPermissions();
 
+        setViews();
 
-
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        setListeners();
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu mMenu) {
-        menu = mMenu;
-        menuItem = menu.findItem(R.id.openCamera);
-//        menuItem.setVisible(false);
-        return super.onPrepareOptionsMenu(menu);
-    }
+    private void setViews(){
+        openCamera = (Button)findViewById(R.id.openCamera);
+        modeSwitch = (Switch) findViewById(R.id.modeSwitch);
+        modeSwitchText = (TextView) findViewById(R.id.modeSwitchText);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.openCamera) {
-//            Intent takePicture = new Intent(MainActivity.this, CameraActivity.class);
-//            startActivity(takePicture);
-
-            File saveFile = new File(Environment.getExternalStorageDirectory(),
-                    getString(R.string.save_name));
-//            String saveName = Environment.getExternalStorageDirectory().toString()
-//                    + File.separator + getString(R.string.save_name);
-
-
-            Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            if (saveFile != null){
-//                Uri photoURI = Uri.fromFile(saveFile);
-                Log.v(LOGTAG,BuildConfig.APPLICATION_ID);
-                Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
-                        BuildConfig.APPLICATION_ID + ".provider",
-                        saveFile);
-
-
-                takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
-                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                takePicture.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
-                mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-                mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-
-                startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
-
-                Log.v(LOGTAG,Uri.fromFile(saveFile).toString());
-                Log.v(LOGTAG,"Called an intent");
-                return true;
-
-            }
-
-            return false;
+        if(modeSwitch.isChecked()){
+            modeSwitchText.setText("Online Mode");
+        }else{
+            modeSwitchText.setText("Offline Mode");
         }
-        return super.onOptionsItemSelected(item);
+
+        openCamera.setClickable(true);
+        modeSwitch.setClickable(true);
+        Log.d(LOGTAG,"Set Views");
+
     }
+
+    private void setListeners(){
+        openCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String fileName = generateFileName();
+
+                File saveFile = new File(Environment.getExternalStorageDirectory(),
+                        fileName);
+
+                queryLocation = saveFile.getAbsolutePath();
+                Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                if (saveFile != null){
+                    Log.v(LOGTAG,BuildConfig.APPLICATION_ID);
+                    Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                            BuildConfig.APPLICATION_ID + ".provider",
+                            saveFile);
+
+                    takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
+                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    takePicture.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
+
+                    startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+
+                    Log.d(LOGTAG,Uri.fromFile(saveFile).toString());
+
+                }
+            }
+        });
+
+
+        CompoundButton.OnCheckedChangeListener modeSwitchListener =
+                new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                Log.d(LOGTAG, "Switch = " + isChecked + " button press =" + modeSwitch.isPressed());
+
+                if (isChecked) {
+//                    modeSwitch.setChecked(false);
+//                    modeSwitch.invalidate();
+                    modeSwitchText.setText("Online Mode");
+                } else {
+//                    modeSwitch.setChecked(true);
+//                    modeSwitch.invalidate();
+                    modeSwitchText.setText("Offline Mode");
+                }
+            }
+        };
+
+        modeSwitch.setOnCheckedChangeListener(modeSwitchListener);
+
+        Log.d(LOGTAG,"Set Listeners");
+
+    }
+
+
+    private String giveUserId(int MAX_LENGTH){
+        Random generator = new Random();
+        StringBuilder randomStringBuilder = new StringBuilder();
+//        int randomLength = generator.nextInt(MAX_LENGTH);
+        char tempChar;
+//        for (int i = 0; i < randomLength; i++){
+        for (int i = 0; i < MAX_LENGTH; i++){
+            tempChar = (char) (generator.nextInt(96) + 32);
+            randomStringBuilder.append(tempChar);
+        }
+        return randomStringBuilder.toString();
+    }
+
+    private String generateFileName(){
+        String userId = giveUserId(10);
+        String s = String.valueOf(System.currentTimeMillis());
+        String time = s.substring(5, s.length());
+
+        String fileName = userId+"_"+time+".jpg";
+        return fileName;
+
+    }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu mMenu) {
+//        menu = mMenu;
+//        menuItem = menu.findItem(R.id.openCamera);
+////        menuItem.setVisible(false);
+//        return super.onPrepareOptionsMenu(menu);
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//        if (id == R.id.openCamera) {
+//
+//            File saveFile = new File(Environment.getExternalStorageDirectory(),
+//                    getString(R.string.save_name));
+//
+//
+//            Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+//            if (saveFile != null){
+//                Log.v(LOGTAG,BuildConfig.APPLICATION_ID);
+//                Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+//                        BuildConfig.APPLICATION_ID + ".provider",
+//                        saveFile);
+//
+//
+//                takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
+//                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//                takePicture.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
+//                mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//                mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+//
+//                startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+//
+//                Log.v(LOGTAG,Uri.fromFile(saveFile).toString());
+//                Log.v(LOGTAG,"Called an intent");
+//                return true;
+//
+//            }
+//
+//            return false;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     private void checkAllPermissions() {
         //Setting Camera permissions
@@ -133,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             Log.v(LOGTAG, "MainActivity Requesting Camera permission");
+            openCamera.setClickable(false);
             requestCameraPermission();
         }
         //Setting Storage permissions
@@ -140,12 +239,14 @@ public class MainActivity extends AppCompatActivity {
             storageRequested = true;
             Log.v(LOGTAG, "MainActivity has storage permission");
         } else {
+            openCamera.setClickable(false);
             Log.v(LOGTAG, "MainActivity Requesting storage permission");
             requestStoragePermission();
         }
 
         if (totalPermissions == 2 & cameraRequested & storageRequested){
-            menuItem.setVisible(true);
+            openCamera.setClickable(true);
+            modeSwitch.setClickable(true);
         }
 
     }
@@ -229,22 +330,12 @@ public class MainActivity extends AppCompatActivity {
 
             if (resultCode == RESULT_OK) {
 
-//                thumbnail = (Bitmap) data.getExtras().get("data");
-//                if(thumbnail != null){
-//                    Log.v(LOGTAG,"data sent is not null");
-//                }else{
-//                    Log.v(LOGTAG,"data sent is null");
-//                }
-
                 Intent i = new Intent(this, CameraActivityInbuilt.class);
-//                i.putExtra("outImage", thumbnail);
                 i.putExtra("from","MainActivity");
-//                Bundle bundle = new Bundle();
-//                bundle.putSerializable("classifier", classifier);
-//                i.putExtras(bundle);
-//                i.putExtra("classifier",classifier);
+                i.putExtra("runOffline",!modeSwitch.isChecked());
+                i.putExtra("queryLocation",queryLocation);
                 startActivity(i);
-                finish();
+//                finish();
 
 
 
@@ -264,7 +355,6 @@ public class MainActivity extends AppCompatActivity {
                 storageRequested = true;
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     totalPermissions = totalPermissions + 1;
-                    //LoadMyData(Environment.getExternalStorageDirectory().getAbsolutePath());
                 } else {
 
                     Log.v("value", "Permission Denied, You cannot use local drive .");
@@ -280,12 +370,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.v(LOGTAG, "MainActivity does not have WRITE storage permissions");
                     totalPermissions = totalPermissions - 1;
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        //Toast.makeText(this, "Write External Storage permission allows us to do store images. Please allow this permission in App Settings.", Toast.LENGTH_LONG).show();
-                        //openApplicationPermissions();
-                    } else {
-                        //openApplicationPermissions();
-                    }
+
                 }
                 break;
 
@@ -303,13 +388,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.v(LOGTAG, "MainActivity does not have Camera permissions");
                     totalPermissions = totalPermissions - 1;
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this, Manifest.permission.CAMERA)) {
-                        //Log.v(LOGTAG,"4 if");
-                        //openApplicationPermissions();
-                    } else {
-                        //Log.v(LOGTAG,"4 else");
-                        //openApplicationPermissions();
-                    }
                 }
                 break;
 
@@ -324,7 +402,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (totalPermissions == 2 & cameraRequested & storageRequested){
-            menuItem.setVisible(true);
+            openCamera.setClickable(true);
+            modeSwitch.setClickable(true);
+
         }
 
 

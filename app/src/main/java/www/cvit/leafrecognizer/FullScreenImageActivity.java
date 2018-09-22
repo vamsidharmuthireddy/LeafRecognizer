@@ -40,9 +40,8 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String imageURL = intent.getStringExtra("imageURL");
-        int drawableLoc = Integer.parseInt(intent.getStringExtra("drawableLoc"));
+        int drawableLoc = intent.getExtras().getInt("drawableLoc");
         Log.v(LOGTAG,"imageURL: "+imageURL);
-
 
         final TouchImageView imgDisplay;
         Button btnClose;

@@ -35,8 +35,8 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
     private ArrayList<LeafInfo> leafInfo;
     private String[] resultString = new String[10];
     private String[] resultName = new String[10];
-    private String[] imageURL;
-    private int[] drawableLoc;
+    private String[] imageURL = new String[10];
+    private int[] drawableLoc = new int[10];
     private String baseURL =
             "http://preon.iiit.ac.in/~vamsidhar_muthireddy/leaf_recognizer_router/title_images/";
     private String extension = ".jpg";
@@ -110,7 +110,7 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
             drawableLoc[position] = R.drawable.leaf;
         }
 
-        Log.d(LOGTAG, "position = "+position+"imagePath = " + imageURL[position]);
+//        Log.d(LOGTAG, "position = "+position+"imagePath = " + imageURL[position]);
 
         Glide.with(context).load(imageURL[position]).asBitmap()
                 .placeholder(drawableLoc[position]).into(imageView);

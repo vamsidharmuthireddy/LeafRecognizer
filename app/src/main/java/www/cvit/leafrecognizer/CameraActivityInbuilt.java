@@ -40,6 +40,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by vamsidhar on 4/12/17.
@@ -60,6 +61,8 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     private String[] resultName = new String[10];
     private ArrayList<LeafInfo> leafInfo;
 
+    private String queryLocation;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +72,10 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         toolbar.setBackgroundColor(Color.WHITE);
         setSupportActionBar(toolbar);
 
-//        Intent intent = getIntent();
+        Intent intent = getIntent();
+        runOffline = (Boolean)intent.getExtras().getBoolean("runOffline");
+        queryLocation = intent.getStringExtra("queryLocation");
+
 //        Bundle bundle = intent.getExtras();
 //        classifier = (ImageClassifier) bundle.getSerializable("classifier");
 //        classifier = (ImageClassifier)intent.getSerializableExtra("classifier");
@@ -78,10 +84,10 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         classifier = MainActivity.classifier;
 
 
-        String saveName = Environment.getExternalStorageDirectory().toString()
-                + File.separator + getString(R.string.save_name);
+//        String saveName = Environment.getExternalStorageDirectory().toString()
+//                + File.separator + getString(R.string.save_name);
 
-        getBitmap(saveName);
+        getBitmap(queryLocation);
 
         cropImageView = (CropImageView) findViewById(R.id.cropImageView);
 //        cropImageView.setGuidelines(1);
@@ -123,25 +129,6 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         menuItem.setVisible(true);
         return super.onPrepareOptionsMenu(menu);
     }
-
-//    /**
-//     * Shows a {@link Toast} on the UI thread for the classification results.
-//     *
-//     * @param text The message to show
-//     */
-//    private void showToast(final String text) {
-//        final Activity activity = CameraActivityInbuilt.this;
-//        if (activity != null) {
-//            activity.runOnUiThread(
-//                    new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            textView.setText(text);
-//                        }
-//                    });
-//        }
-//    }
-
 
 
     @Override
@@ -228,8 +215,10 @@ public class CameraActivityInbuilt extends AppCompatActivity {
 
     private void saveImage(Bitmap croppedImage){
 
+        String fileName = generateFileName();
         File croppedFile = new File(Environment.getExternalStorageDirectory(),
-                getString(R.string.save_name));
+                fileName);
+        queryLocation = croppedFile.getAbsolutePath();
         if (croppedFile == null) {
             Log.v(LOGTAG, "Error creating media file, check storage permissions: ");// e.getMessage());
             return;
@@ -241,7 +230,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
             Bitmap temp = getResizedBitmap(croppedImage, MAX_SIZE);
             temp.compress(Bitmap.CompressFormat.JPEG, 80, fos);
 
-            Log.v(LOGTAG,"croppedFile: "+croppedFile.toString());
+            Log.d(LOGTAG,"croppedFile: "+croppedFile.toString());
             fos.close();
             if (runOffline){
                 if (classifier == null || croppedImage == null) {
@@ -261,10 +250,9 @@ public class CameraActivityInbuilt extends AppCompatActivity {
                 Log.v(LOGTAG,resultString);
                 Intent callAnnotation = new Intent(CameraActivityInbuilt.this, ResultPrimaryActivity.class);
 
-                callAnnotation.putExtra("query_loc", croppedFile.toString());
-
                 callAnnotation.putExtra("resultString", resultString);
                 callAnnotation.putExtra("runOffline",runOffline);
+                callAnnotation.putExtra("queryLocation",queryLocation);
 
                 startActivity(callAnnotation);
                 finish();
@@ -283,6 +271,31 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         ContactServer contactServer = new ContactServer(this, this);
         contactServer.execute(croppedFile.toString());
     }
+
+    private String giveUserId(int MAX_LENGTH){
+        Random generator = new Random();
+        StringBuilder randomStringBuilder = new StringBuilder();
+//        int randomLength = generator.nextInt(MAX_LENGTH);
+        char tempChar;
+//        for (int i = 0; i < randomLength; i++){
+        for (int i = 0; i < MAX_LENGTH; i++){
+            tempChar = (char) (generator.nextInt(96) + 32);
+            randomStringBuilder.append(tempChar);
+        }
+        return randomStringBuilder.toString();
+    }
+
+    private String generateFileName(){
+        String userId = giveUserId(10);
+        String s = String.valueOf(System.currentTimeMillis());
+        String time = s.substring(5, s.length());
+
+        String fileName = userId+"_"+time+".jpg";
+        return fileName;
+
+    }
+
+
 
 
     private void loadleaf(){

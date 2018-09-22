@@ -48,6 +48,7 @@ public class ResultDetailActivity extends AppCompatActivity{
     private String language;
     private String leafName;
     private String imageURL;
+    private int drawableLoc;
 
     private String packageName;
     private String packageName_en;
@@ -77,6 +78,7 @@ public class ResultDetailActivity extends AppCompatActivity{
         Intent intent = getIntent();
         leafName = intent.getStringExtra(getString(R.string.leaf_name));
         imageURL = intent.getStringExtra(getString(R.string.image_url));
+        drawableLoc = intent.getExtras().getInt("drawableLoc");
 
         //loading the relevant leaf
         leafInfo = LoadInterestPoint(leafName);
@@ -133,6 +135,7 @@ public class ResultDetailActivity extends AppCompatActivity{
                         FullScreenImageActivity.class);
                 openImage.putExtra("imageURL", imageURL);
                 openImage.putExtra("query", "false");
+                openImage.putExtra("drawableLoc",drawableLoc);
                 startActivity(openImage);
             }
         });
@@ -140,7 +143,7 @@ public class ResultDetailActivity extends AppCompatActivity{
 //        imageView.setImageBitmap(setBitmap);
 //        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(this).load(imageURL).asBitmap()
-                .placeholder(R.drawable.leaf).into(imageView);
+                .placeholder(drawableLoc).into(imageView);
 
         text_scientific_name.setText(leafInfo.getLeaf(getString(R.string.scientific_name_tag)));
         text_scientific_name.setGravity(Gravity.LEFT);

@@ -48,6 +48,8 @@ public class ResultPrimaryActivity extends AppCompatActivity{
 
     private Boolean runOffline ;
 
+    private String queryLocation;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,9 +62,11 @@ public class ResultPrimaryActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        imgFile = new  File(getIntent().getStringExtra("query_loc"));
-
+        queryLocation = getIntent().getStringExtra("queryLocation");
+        imgFile = new  File(queryLocation);
+        Log.d(LOGTAG,queryLocation);
         if(imgFile.exists()){
+            Log.d(LOGTAG,"File exists at "+queryLocation);
 
             Bitmap myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
             queryImageView = (ImageView) findViewById(R.id.query_image);
@@ -74,13 +78,15 @@ public class ResultPrimaryActivity extends AppCompatActivity{
                 public void onClick(View view) {
                     Intent openImage = new Intent(ResultPrimaryActivity.this,
                             FullScreenImageActivity.class);
-                    openImage.putExtra("imageURL", getIntent().getStringExtra("query_loc"));
+                    openImage.putExtra("imageURL", queryLocation);
                     openImage.putExtra("query", "true");
                     openImage.putExtra("drawableLoc",R.drawable.leaf);
                     startActivity(openImage);
                 }
             });
 
+        }else{
+            Log.i(LOGTAG,"No file exists at "+queryLocation);
         }
 
 
@@ -180,8 +186,8 @@ public class ResultPrimaryActivity extends AppCompatActivity{
             leaf = leafInfo.get(Integer.parseInt(resultString[i]) - 1);
             resultName[i] = leaf.getLeaf(getString(R.string.scientific_name_tag));
 
-            Log.v(LOGTAG, resultString[i]+" "+Integer.parseInt(resultString[i])+" Id " + leaf.getLeaf(getString(R.string.id_tag))+" " +resultName[i]);
-
+//            Log.v(LOGTAG, resultString[i]+" "+Integer.parseInt(resultString[i])+" Id " + leaf.getLeaf(getString(R.string.id_tag))+" " +resultName[i]);
+            Log.d(LOGTAG, resultString[i] +" " +resultName[i]);
         }
 
     }
@@ -200,7 +206,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        imgFile.delete();
+//        imgFile.delete();
 //        Intent intent = new Intent(ResultPrimaryActivity.this, MainActivity.class);
 //        startActivity(intent);
 //        finish();

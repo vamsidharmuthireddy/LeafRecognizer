@@ -247,7 +247,8 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
 //        Intent callAnnotation = new Intent(context, AnnotationActivity.class);
         Intent callAnnotation = new Intent(context, ResultPrimaryActivity.class);
 
-        callAnnotation.putExtra("query_loc", inputImageFilePath);
+        callAnnotation.putExtra("queryLocation", inputImageFilePath);
+        callAnnotation.putExtra("runOffline",false);
 
 //        ByteArrayOutputStream bs = new ByteArrayOutputStream();
 //        resultBitmap.compress(Bitmap.CompressFormat.JPEG,50,bs);

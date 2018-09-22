@@ -35,6 +35,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -226,13 +227,17 @@ public class ImageClassifier {
     /** Prints top-K labels, to be shown in UI as the results. */
     private String printTopKLabels() {
         for (int i = 0; i < labelList.size(); ++i) {
-            sortedLabels.add(
-                    new AbstractMap.SimpleEntry<>(labelList.get(i).split("_")[0], labelProbArray[0][i]));
+            String tempLabel = labelList.get(i).split("_")[0];
+            Float tempLabelProb = labelProbArray[0][i];
+
+            sortedLabels.add(new AbstractMap.SimpleEntry<>(tempLabel, tempLabelProb));
 //      Log.d(TAG, i+" : "+labelList.get(i)+" : "+labelProbArray[0][i]);
-            if (sortedLabels.size() > RESULTS_TO_SHOW) {
-                sortedLabels.poll();
-            }
+//            if (sortedLabels.size() > RESULTS_TO_SHOW) {
+//                sortedLabels.poll();
+//            }
         }
+
+
         Log.d(TAG,labelList.size()+" : "+sortedLabels.size());
         String textToShow;
         final int size = sortedLabels.size();
@@ -242,12 +247,24 @@ public class ImageClassifier {
 //            textToShow = String.format("\n%s: %4.2f",label.getKey(),label.getValue()) + textToShow;
 //        }
 
-         String[] label = new String[size];
+        String[] label = new String[RESULTS_TO_SHOW];
+        int trimCount = 0;
         for (int i = 0; i < size; ++i) {
             Map.Entry<String, Float> labelNprob = sortedLabels.poll();
-            label[i] = labelNprob.getKey();
-//            textToShow = String.format("\n%s: %4.2f",label.getKey(),label.getValue()) + textToShow;
+            Log.d(TAG,"OUT: "+labelNprob.getKey()+" : "+labelNprob.getValue());
+            if ( trimCount < RESULTS_TO_SHOW) {
+                if (!Arrays.asList(label).contains(labelNprob.getKey())) {
+                    Log.d(TAG,"IN: "+labelNprob.getKey()+" : "+labelNprob.getValue()+"trimCount:"+trimCount);
+                    label[trimCount] = labelNprob.getKey();
+                    trimCount++;
+                }
+            }else{
+                Log.d(TAG,"Done with 10 labels. Label size: "+label.length);
+                break;
+            }
+
         }
+
 
         textToShow = TextUtils.join("\t",label);
         return textToShow;
