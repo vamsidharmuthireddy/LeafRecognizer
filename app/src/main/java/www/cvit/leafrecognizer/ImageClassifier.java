@@ -18,12 +18,17 @@ package www.cvit.leafrecognizer;
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -38,6 +43,8 @@ import org.tensorflow.lite.Interpreter;
 
 /** Classifies images with Tensorflow Lite. */
 public class ImageClassifier {
+//public class ImageClassifier implements Parcelable {
+//public class ImageClassifier implements Serializable{
 
     /** Tag for the {@link Log}. */
     private static final String TAG = "TfLiteCameraDemo";
@@ -123,7 +130,7 @@ public class ImageClassifier {
 
         // print the results
         String textToShow = printTopKLabels();
-        textToShow = Long.toString(endTime - startTime) + "ms" + textToShow;
+//        textToShow = Long.toString(endTime - startTime) + "ms" + textToShow;
         return textToShow;
     }
 
@@ -173,6 +180,10 @@ public class ImageClassifier {
         String line;
         while ((line = reader.readLine()) != null) {
             labelList.add(line);
+
+//            String leafId = line.split("_")[0];
+//            labelList.add(leafId);
+
         }
         reader.close();
         return labelList;
@@ -216,19 +227,33 @@ public class ImageClassifier {
     private String printTopKLabels() {
         for (int i = 0; i < labelList.size(); ++i) {
             sortedLabels.add(
-                    new AbstractMap.SimpleEntry<>(labelList.get(i), labelProbArray[0][i]));
+                    new AbstractMap.SimpleEntry<>(labelList.get(i).split("_")[0], labelProbArray[0][i]));
 //      Log.d(TAG, i+" : "+labelList.get(i)+" : "+labelProbArray[0][i]);
             if (sortedLabels.size() > RESULTS_TO_SHOW) {
                 sortedLabels.poll();
             }
         }
-        String textToShow = "";
+        Log.d(TAG,labelList.size()+" : "+sortedLabels.size());
+        String textToShow;
         final int size = sortedLabels.size();
+
+//        for (int i = 0; i < size; ++i) {
+//            Map.Entry<String, Float> label = sortedLabels.poll();
+//            textToShow = String.format("\n%s: %4.2f",label.getKey(),label.getValue()) + textToShow;
+//        }
+
+         String[] label = new String[size];
         for (int i = 0; i < size; ++i) {
-            Map.Entry<String, Float> label = sortedLabels.poll();
-            textToShow = String.format("\n%s: %4.2f",label.getKey(),label.getValue()) + textToShow;
+            Map.Entry<String, Float> labelNprob = sortedLabels.poll();
+            label[i] = labelNprob.getKey();
+//            textToShow = String.format("\n%s: %4.2f",label.getKey(),label.getValue()) + textToShow;
         }
+
+        textToShow = TextUtils.join("\t",label);
         return textToShow;
     }
+
+
+
 }
 

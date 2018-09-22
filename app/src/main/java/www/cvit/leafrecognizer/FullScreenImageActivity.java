@@ -40,6 +40,7 @@ public class FullScreenImageActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String imageURL = intent.getStringExtra("imageURL");
+        int drawableLoc = Integer.parseInt(intent.getStringExtra("drawableLoc"));
         Log.v(LOGTAG,"imageURL: "+imageURL);
 
 
@@ -51,12 +52,12 @@ public class FullScreenImageActivity extends AppCompatActivity {
         if (intent.getStringExtra("query").equals("true")){
             Glide.with(this).load(imageURL).asBitmap()
                     .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
-                    .placeholder(R.drawable.leaf).into(imgDisplay);
+                    .placeholder(drawableLoc).into(imgDisplay);
 
         }else{
             Glide.with(this).load(imageURL).asBitmap()
 //                    .signature(new StringSignature(String.valueOf(System.currentTimeMillis())))
-                    .placeholder(R.drawable.leaf).into(imgDisplay);
+                    .placeholder(drawableLoc).into(imgDisplay);
         }
 
 

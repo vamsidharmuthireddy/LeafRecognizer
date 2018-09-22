@@ -37,17 +37,16 @@ public class ResultPrimaryActivity extends AppCompatActivity{
 
     private String[] resultString = new String[10];
     private String[] resultName = new String[10];
-    private String[] result_url = new String[10];
+
     private ImageView queryImageView;
     private Toolbar toolbar;
 
     private ArrayList<LeafInfo> leafInfo;
 
-    private String baseURL =
-            "http://preon.iiit.ac.in/~vamsidhar_muthireddy/leaf_recognizer_router/title_images/";
-    private String extension = ".jpg";
 
     private File imgFile;
+
+    private Boolean runOffline ;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,6 +76,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
                             FullScreenImageActivity.class);
                     openImage.putExtra("imageURL", getIntent().getStringExtra("query_loc"));
                     openImage.putExtra("query", "true");
+                    openImage.putExtra("drawableLoc",R.drawable.leaf);
                     startActivity(openImage);
                 }
             });
@@ -84,8 +84,11 @@ public class ResultPrimaryActivity extends AppCompatActivity{
         }
 
 
+        runOffline =  getIntent().getExtras().getBoolean("runOffline");
+
         if(getIntent().hasExtra("resultString")) {
             String result = getIntent().getStringExtra("resultString");
+
 
             Log.v(LOGTAG,"result = "+result);
             if (result==null){
@@ -96,9 +99,6 @@ public class ResultPrimaryActivity extends AppCompatActivity{
                 resultString = result.split("\t");
             }
 
-            for (int i=0;i<resultString.length;i++){
-                result_url[i] = baseURL+resultString[i]+extension;
-            }
 
         }
 
@@ -114,7 +114,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
         recyclerView.setLayoutManager(recyclerViewLayoutManager);
 
         recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this,
-                                leafInfo, resultString);
+                                leafInfo, resultString, runOffline);
 
 //        recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this);
         recyclerViewAdapter.setHasStableIds(true);
@@ -201,9 +201,9 @@ public class ResultPrimaryActivity extends AppCompatActivity{
     public void onBackPressed() {
         super.onBackPressed();
         imgFile.delete();
-        Intent intent = new Intent(ResultPrimaryActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
+//        Intent intent = new Intent(ResultPrimaryActivity.this, MainActivity.class);
+//        startActivity(intent);
+//        finish();
     }
 
 

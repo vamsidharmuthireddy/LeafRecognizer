@@ -4,6 +4,7 @@ project.ext.ASSET_DIR = projectDir.toString() + '/src/main/assets'
 
 assert file(project.ext.ASSET_DIR + "/graph.lite").exists()
 assert file(project.ext.ASSET_DIR + "/labels.txt").exists()
+assert file(project.ext.ASSET_DIR + "/leaf_data.xml").exists()
 
 android {
     compileSdkVersion 26

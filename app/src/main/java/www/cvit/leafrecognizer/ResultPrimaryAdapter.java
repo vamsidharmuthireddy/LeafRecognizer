@@ -35,9 +35,13 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
     private ArrayList<LeafInfo> leafInfo;
     private String[] resultString = new String[10];
     private String[] resultName = new String[10];
+    private String[] imageURL;
+    private int[] drawableLoc;
     private String baseURL =
             "http://preon.iiit.ac.in/~vamsidhar_muthireddy/leaf_recognizer_router/title_images/";
     private String extension = ".jpg";
+
+    private Boolean runOffline ;
 
 
     public static class DataObjectHolder extends RecyclerView.ViewHolder {
@@ -58,10 +62,11 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
 //    }
 
     public ResultPrimaryAdapter(Context _context, ArrayList<LeafInfo> leafInfo,
-                                String[] resultString) {
+                                String[] resultString, Boolean runOffline) {
         context = _context;
         this.leafInfo = leafInfo;
         this.resultString = resultString;
+        this.runOffline = runOffline;
         notifyDataSetChanged();
     }
 
@@ -93,13 +98,22 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
         textView.setText(resultName[position]);
 
 
-        String imageURL = baseURL+resultString[position]+extension;
-//        Log.v(LOGTAG,resultString)
+//        String imageURL;
+//        int drawableLoc = R.drawable.leaf;
+        if (runOffline){
+            imageURL[position]= "";
+            drawableLoc[position] = context.getResources()
+                            .getIdentifier("title_"+resultString[position],
+                            "drawable",context.getPackageName());
+        }else{
+            imageURL[position]= baseURL+resultString[position]+extension;
+            drawableLoc[position] = R.drawable.leaf;
+        }
 
-        Log.v(LOGTAG, "position = "+position+"imagePath = " + imageURL);
+        Log.d(LOGTAG, "position = "+position+"imagePath = " + imageURL[position]);
 
-        Glide.with(context).load(imageURL).asBitmap()
-                .placeholder(R.drawable.leaf).into(imageView);
+        Glide.with(context).load(imageURL[position]).asBitmap()
+                .placeholder(drawableLoc[position]).into(imageView);
 
 //        if (imagePath == null) {
 //            Glide.with(context)
@@ -136,14 +150,15 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
             @Override
             public void onClick(View v) {
                 String leafName = holder.textView.getText().toString().toLowerCase();
-                String imageURL = baseURL+resultString[position]+extension;
+//                String imageURL = baseURL+resultString[position]+extension;
 
-                Log.v(LOGTAG, v.getId() + " is clicked" + " position= " + position
+                Log.d(LOGTAG, v.getId() + " is clicked" + " position= " + position
                         + " leafName = " + leafName);
 
                 Intent openImage = new Intent(context,
                         FullScreenImageActivity.class);
-                openImage.putExtra("imageURL", imageURL);
+                openImage.putExtra("imageURL", imageURL[position]);
+                openImage.putExtra("drawableLoc", drawableLoc[position]);
                 openImage.putExtra("query", "false");
                 context.startActivity(openImage);
             }
@@ -154,15 +169,16 @@ public class ResultPrimaryAdapter extends RecyclerView.Adapter<ResultPrimaryAdap
             @Override
             public void onClick(View v) {
                 String leafName = holder.textView.getText().toString().toLowerCase();
-                String imageURL = baseURL+resultString[position]+extension;
+//                String imageURL = baseURL+resultString[position]+extension;
 
-                Log.v(LOGTAG, v.getId() + " is clicked" + " position= " + position
+                Log.d(LOGTAG, v.getId() + " is clicked" + " position= " + position
                         + " leafName = " + leafName);
 
-                Intent intent = new Intent(context,ResultDetailActivity.class);
-                intent.putExtra(context.getString(R.string.leaf_name),resultName[position]);
-                intent.putExtra(context.getString(R.string.image_url), imageURL);
-                context.startActivity(intent);
+                Intent openLeafDetail = new Intent(context,ResultDetailActivity.class);
+                openLeafDetail.putExtra(context.getString(R.string.leaf_name),resultName[position]);
+                openLeafDetail.putExtra(context.getString(R.string.image_url), imageURL[position]);
+                openLeafDetail.putExtra("drawableLoc", drawableLoc[position]);
+                context.startActivity(openLeafDetail);
             }
         });
 

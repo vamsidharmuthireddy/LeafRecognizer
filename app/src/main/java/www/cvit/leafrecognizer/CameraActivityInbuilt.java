@@ -39,6 +39,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Created by vamsidhar on 4/12/17.
@@ -51,8 +52,14 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     public static MenuItem menuItem;
     private CropImageView cropImageView;
     private int MAX_SIZE = 640;
-    private Boolean runOffline = false;
+    private Boolean runOffline = true;
     private ImageClassifier classifier;
+
+
+    private String[] resultString = new String[10];
+    private String[] resultName = new String[10];
+    private ArrayList<LeafInfo> leafInfo;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,9 +69,13 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         toolbar.setBackgroundColor(Color.WHITE);
         setSupportActionBar(toolbar);
 
-        Intent intent = getIntent();
-        classifier = (ImageClassifier)intent.getSerializableExtra("classifier");
+//        Intent intent = getIntent();
+//        Bundle bundle = intent.getExtras();
+//        classifier = (ImageClassifier) bundle.getSerializable("classifier");
+//        classifier = (ImageClassifier)intent.getSerializableExtra("classifier");
 //        classifier = new MainActivity().classifier;
+
+        classifier = MainActivity.classifier;
 
 
         String saveName = Environment.getExternalStorageDirectory().toString()
@@ -75,6 +86,8 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         cropImageView = (CropImageView) findViewById(R.id.cropImageView);
 //        cropImageView.setGuidelines(1);
         cropImageView.setCropShape(CropImageView.CropShape.RECTANGLE);
+        cropImageView.setAspectRatio(1,1);
+        cropImageView.setFixedAspectRatio(true);
         cropImageView.setScaleType(CropImageView.ScaleType.FIT_CENTER);
         cropImageView.setAutoZoomEnabled(true);
         cropImageView.setShowProgressBar(true);
@@ -90,6 +103,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         });
 
 
+//        loadleaf();
 
 
     }
@@ -138,21 +152,12 @@ public class CameraActivityInbuilt extends AppCompatActivity {
             Log.v(LOGTAG,cropRect.left+" "+cropRect.top
                     +" "+cropRect.width()+" "+cropRect.height());
             Bitmap croppedImage = cropImageView.getCroppedImage(cropRect.width(),cropRect.height());
+
             item.setVisible(false);
             dispCropImage(croppedImage);
-            if (runOffline){
-                if (classifier == null || croppedImage == null) {
-                    Toast.makeText(CameraActivityInbuilt.this,
-                            "Uninitialized Classifier or null bitmap.",Toast.LENGTH_LONG).show();
-                    return false;
-                }
-                String textToShow = classifier.classifyFrame(croppedImage);
-                Toast.makeText(CameraActivityInbuilt.this,textToShow,Toast.LENGTH_LONG).show();
-            }
-            else{
-                saveImage(croppedImage);
 
-            }
+            saveImage(croppedImage);
+
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -221,7 +226,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     }
 
 
-    private void saveImage(Bitmap cropped){
+    private void saveImage(Bitmap croppedImage){
 
         File croppedFile = new File(Environment.getExternalStorageDirectory(),
                 getString(R.string.save_name));
@@ -233,12 +238,40 @@ public class CameraActivityInbuilt extends AppCompatActivity {
 
             FileOutputStream fos = new FileOutputStream(croppedFile);
 //            cropped.compress(Bitmap.CompressFormat.JPEG, 80, fos);
-            Bitmap temp = getResizedBitmap(cropped, MAX_SIZE);
+            Bitmap temp = getResizedBitmap(croppedImage, MAX_SIZE);
             temp.compress(Bitmap.CompressFormat.JPEG, 80, fos);
 
             Log.v(LOGTAG,"croppedFile: "+croppedFile.toString());
             fos.close();
-            sendToServer(croppedFile);
+            if (runOffline){
+                if (classifier == null || croppedImage == null) {
+                    Toast.makeText(CameraActivityInbuilt.this,
+                            "Uninitialized Classifier or null bitmap.",Toast.LENGTH_LONG).show();
+                    return ;
+                }
+                int newWidth = 224;
+                int newHeight = 224;
+
+                Bitmap resized = Bitmap.createScaledBitmap(croppedImage, newWidth, newHeight, true);
+
+                String resultString = classifier.classifyFrame(resized);
+                Toast.makeText(CameraActivityInbuilt.this,resultString,Toast.LENGTH_LONG).show();
+
+//                resultString = textToShow.split("\t");
+                Log.v(LOGTAG,resultString);
+                Intent callAnnotation = new Intent(CameraActivityInbuilt.this, ResultPrimaryActivity.class);
+
+                callAnnotation.putExtra("query_loc", croppedFile.toString());
+
+                callAnnotation.putExtra("resultString", resultString);
+                callAnnotation.putExtra("runOffline",runOffline);
+
+                startActivity(callAnnotation);
+                finish();
+
+            }else {
+                sendToServer(croppedFile);
+            }
         } catch (FileNotFoundException e) {
             Log.v(LOGTAG, "File not found: " + e.getMessage());
         } catch (IOException e) {
@@ -251,5 +284,25 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         contactServer.execute(croppedFile.toString());
     }
 
+
+    private void loadleaf(){
+        PackageReader reader;
+
+        reader = new PackageReader(CameraActivityInbuilt.this);
+
+        leafInfo = reader.getLeafList();
+
+        Log.v(LOGTAG, "interestPointsList size is " + leafInfo.size());
+
+        LeafInfo leaf;
+        for (int i = 0; i < resultString.length; i++) {
+            leaf = leafInfo.get(Integer.parseInt(resultString[i]) - 1);
+            resultName[i] = leaf.getLeaf(getString(R.string.scientific_name_tag));
+
+            Log.v(LOGTAG, resultString[i]+" "+Integer.parseInt(resultString[i])+" Id " + leaf.getLeaf(getString(R.string.id_tag))+" " +resultName[i]);
+
+        }
+
+    }
 
 }

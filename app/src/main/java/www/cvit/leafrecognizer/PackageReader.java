@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -17,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -42,7 +44,8 @@ public class PackageReader   {
     LeafInfo leafInfo;
     ArrayList<LeafInfo> LeafList;
 
-
+    /** Name of the label file stored in Assets. */
+    private static final String XML_PATH = "leaf_data.xml";
 
     private Context context;
 
@@ -160,13 +163,17 @@ public class PackageReader   {
 
 //        File xmlfile = new File(baseLocal, dataLocation + packageName_en + "/" + xmlFile);
         File xmlfile = new File(Environment.getExternalStorageDirectory().toString(),"leaf_data.xml");
+
         Log.v(LOGTAG, "xml file name is " + xmlfile.getAbsolutePath());
 
         try {
-            FileInputStream xmlStream = new FileInputStream(xmlfile);
+//            FileInputStream xmlStream = new FileInputStream(xmlfile);
+            InputStream xmlStream = context.getAssets().open(XML_PATH);
             String contents = readTextFile(xmlStream);
             readContentsFromString(contents);
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e){
             e.printStackTrace();
         }
     }

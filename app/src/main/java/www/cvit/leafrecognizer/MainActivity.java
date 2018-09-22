@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean cameraRequested = false;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    public ImageClassifier classifier;
+    public static ImageClassifier classifier;
 
 
     @Override
@@ -239,6 +239,9 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(this, CameraActivityInbuilt.class);
 //                i.putExtra("outImage", thumbnail);
                 i.putExtra("from","MainActivity");
+//                Bundle bundle = new Bundle();
+//                bundle.putSerializable("classifier", classifier);
+//                i.putExtras(bundle);
 //                i.putExtra("classifier",classifier);
                 startActivity(i);
                 finish();
