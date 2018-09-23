@@ -18,6 +18,7 @@ package www.cvit.leafrecognizer;
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -26,6 +27,8 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
@@ -108,13 +111,13 @@ public class ImageClassifier {
                 ByteBuffer.allocateDirect(
                         4 * DIM_BATCH_SIZE * DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y * DIM_PIXEL_SIZE);
         imgData.order(ByteOrder.nativeOrder());
-        labelProbArray = new float[1][labelList.size()];
-        filterLabelProbArray = new float[FILTER_STAGES][labelList.size()];
         Log.d(TAG, "Created a Tensorflow Lite Image Classifier.");
     }
 
     /** Classifies a frame from the preview stream. */
     String classifyFrame(Bitmap bitmap) {
+        labelProbArray = new float[1][labelList.size()];
+        filterLabelProbArray = new float[FILTER_STAGES][labelList.size()];
         if (tflite == null) {
             Log.e(TAG, "Image classifier has not been initialized; Skipped.");
             return "Uninitialized Classifier.";
@@ -132,6 +135,9 @@ public class ImageClassifier {
         // print the results
         String textToShow = printTopKLabels();
 //        textToShow = Long.toString(endTime - startTime) + "ms" + textToShow;
+
+        sortedLabels.clear();
+
         return textToShow;
     }
 
@@ -201,12 +207,13 @@ public class ImageClassifier {
     }
 
     /** Writes Image data into a {@code ByteBuffer}. */
-    private void convertBitmapToByteBuffer(Bitmap bitmap) {
+    private void convertBitmapToByteBuffer(Bitmap queryBitmap) {
         if (imgData == null) {
             return;
         }
         imgData.rewind();
-        bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+        queryBitmap = cropNResizeBitmap(queryBitmap);
+        queryBitmap.getPixels(intValues, 0, queryBitmap.getWidth(), 0, 0, queryBitmap.getWidth(), queryBitmap.getHeight());
         // Convert the image to floating point.
         int pixel = 0;
         long startTime = SystemClock.uptimeMillis();
@@ -222,6 +229,35 @@ public class ImageClassifier {
         }
         long endTime = SystemClock.uptimeMillis();
         Log.d(TAG, "Timecost to put values into ByteBuffer: " + Long.toString(endTime - startTime));
+    }
+
+
+    private Bitmap cropNResizeBitmap(Bitmap queryBitmap){
+        int width = queryBitmap.getWidth();
+        int height = queryBitmap.getHeight();
+        Log.d(TAG,"bitmapWidth: "+width+" bitmapHeight: "+height);
+
+        int newWidth = (height > width) ? width : height;
+        int newHeight = (height > width)? height - ( height - width) : height;
+        int cropW = (width - height) / 2;
+        cropW = (cropW < 0)? 0: cropW;
+        int cropH = (height - width) / 2;
+        cropH = (cropH < 0)? 0: cropH;
+        Bitmap cropImg = Bitmap.createBitmap(queryBitmap, cropW, cropH, newWidth, newHeight);
+        cropImg = Bitmap.createScaledBitmap(cropImg,DIM_IMG_SIZE_X,DIM_IMG_SIZE_Y,true);
+
+        try {
+            FileOutputStream fos1 = new FileOutputStream(
+                    new File(Environment.getExternalStorageDirectory(), "AA3.jpg"));
+            cropImg.compress(Bitmap.CompressFormat.JPEG, 100, fos1);
+            fos1.close();
+        }catch (FileNotFoundException e){
+            Log.v(TAG,"File Not Found "+e.getMessage());
+        }catch (IOException e){
+            Log.v(TAG,"Error accessing file: "+e.getMessage());
+        }
+        return cropImg;
+
     }
 
     /** Prints top-K labels, to be shown in UI as the results. */
@@ -251,7 +287,7 @@ public class ImageClassifier {
         int trimCount = 0;
         for (int i = 0; i < size; ++i) {
             Map.Entry<String, Float> labelNprob = sortedLabels.poll();
-            Log.d(TAG,"OUT: "+labelNprob.getKey()+" : "+labelNprob.getValue());
+//            Log.d(TAG,"OUT: "+labelNprob.getKey()+" : "+labelNprob.getValue());
             if ( trimCount < RESULTS_TO_SHOW) {
                 if (!Arrays.asList(label).contains(labelNprob.getKey())) {
                     Log.d(TAG,"IN: "+labelNprob.getKey()+" : "+labelNprob.getValue()+"trimCount:"+trimCount);

@@ -2,6 +2,7 @@ package www.cvit.leafrecognizer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ExifInterface;
 import android.media.Image;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -92,8 +94,8 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         cropImageView = (CropImageView) findViewById(R.id.cropImageView);
 //        cropImageView.setGuidelines(1);
         cropImageView.setCropShape(CropImageView.CropShape.RECTANGLE);
-        cropImageView.setAspectRatio(1,1);
-        cropImageView.setFixedAspectRatio(true);
+//        cropImageView.setAspectRatio(1,1);
+//        cropImageView.setFixedAspectRatio(true);
         cropImageView.setScaleType(CropImageView.ScaleType.FIT_CENTER);
         cropImageView.setAutoZoomEnabled(true);
         cropImageView.setShowProgressBar(true);
@@ -220,7 +222,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
                 fileName);
         queryLocation = croppedFile.getAbsolutePath();
         if (croppedFile == null) {
-            Log.v(LOGTAG, "Error creating media file, check storage permissions: ");// e.getMessage());
+            Log.w(LOGTAG, "Error creating media file, check storage permissions: ");// e.getMessage());
             return;
         }
         try {
@@ -233,20 +235,44 @@ public class CameraActivityInbuilt extends AppCompatActivity {
             Log.d(LOGTAG,"croppedFile: "+croppedFile.toString());
             fos.close();
             if (runOffline){
-                if (classifier == null || croppedImage == null) {
-                    Toast.makeText(CameraActivityInbuilt.this,
-                            "Uninitialized Classifier or null bitmap.",Toast.LENGTH_LONG).show();
-                    return ;
-                }
-                int newWidth = 224;
-                int newHeight = 224;
+               runOfflineClassifier(croppedImage);
+            }else {
+                sendToServer(croppedFile);
+            }
+        } catch (FileNotFoundException e) {
+            Log.v(LOGTAG, "File not found: " + e.getMessage());
+        } catch (IOException e) {
+            Log.v(LOGTAG, "Error accessing file: " + e.getMessage());
+        }
+    }
 
-                Bitmap resized = Bitmap.createScaledBitmap(croppedImage, newWidth, newHeight, true);
 
-                String resultString = classifier.classifyFrame(resized);
+    private void runOfflineClassifier(Bitmap croppedImage){
+        if (classifier == null || croppedImage == null) {
+            Toast.makeText(CameraActivityInbuilt.this,
+                    "Uninitialized Classifier or null bitmap.",Toast.LENGTH_LONG).show();
+            return ;
+        }
+//                int newWidth = 224;
+//                int newHeight = 224;
+//
+//
+//                Bitmap cropImg = Bitmap.createBitmap(croppedImage, 138, 0, 364, 364);
+//                cropImg = Bitmap.createScaledBitmap(cropImg,newWidth,newHeight,true);
+//
+//                FileOutputStream fos1 = new FileOutputStream(
+//                        new File(Environment.getExternalStorageDirectory(),"AA1.jpg"));
+//                cropImg.compress(Bitmap.CompressFormat.JPEG,100,fos1);
+//                fos1.close();
+
+//                String resultString = classifier.classifyFrame(croppedImage);
+
+        RunClassifier.AsyncResponse delegate = new RunClassifier.AsyncResponse(){
+            @Override
+            public void processFinish(String output) {
+                String resultString = output;
                 Toast.makeText(CameraActivityInbuilt.this,resultString,Toast.LENGTH_LONG).show();
 
-//                resultString = textToShow.split("\t");
                 Log.v(LOGTAG,resultString);
                 Intent callAnnotation = new Intent(CameraActivityInbuilt.this, ResultPrimaryActivity.class);
 
@@ -257,14 +283,11 @@ public class CameraActivityInbuilt extends AppCompatActivity {
                 startActivity(callAnnotation);
                 finish();
 
-            }else {
-                sendToServer(croppedFile);
             }
-        } catch (FileNotFoundException e) {
-            Log.v(LOGTAG, "File not found: " + e.getMessage());
-        } catch (IOException e) {
-            Log.v(LOGTAG, "Error accessing file: " + e.getMessage());
-        }
+        };
+
+        new RunClassifier(CameraActivityInbuilt.this,classifier,delegate)
+                .execute(croppedImage);
     }
 
     private void sendToServer(File croppedFile){
@@ -295,9 +318,6 @@ public class CameraActivityInbuilt extends AppCompatActivity {
 
     }
 
-
-
-
     private void loadleaf(){
         PackageReader reader;
 
@@ -317,5 +337,6 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         }
 
     }
+
 
 }

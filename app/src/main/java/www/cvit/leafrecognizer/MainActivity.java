@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Camera;
 import android.graphics.Color;
@@ -46,14 +47,15 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 4;
     private static final int Click = 5;
     private static final int PERMISSIONS_REQUEST_CAMERA = 6;
+    private static final int PERMISSIONS_PICK_PICTURE_REQUEST = 7;
     public static Menu menu;
     public static MenuItem menuItem;
     private int totalPermissions = 0;
     private boolean storageRequested = false;
     private boolean cameraRequested = false;
-    private SensorManager mSensorManager;
     public static ImageClassifier classifier;
     private Button openCamera;
+    private Button selectPicture;
     private Switch modeSwitch;
     private TextView modeSwitchText;
     public static String queryLocation;
@@ -64,17 +66,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        checkAllPermissions();
 
         setViews();
 
         setListeners();
+
+        checkAllPermissions();
+
     }
 
     private void setViews(){
         openCamera = (Button)findViewById(R.id.openCamera);
         modeSwitch = (Switch) findViewById(R.id.modeSwitch);
         modeSwitchText = (TextView) findViewById(R.id.modeSwitchText);
+        selectPicture = (Button) findViewById(R.id.selectPicture);
 
         if(modeSwitch.isChecked()){
             modeSwitchText.setText("Online Mode");
@@ -83,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         openCamera.setClickable(true);
+        selectPicture.setClickable(true);
         modeSwitch.setClickable(true);
         Log.d(LOGTAG,"Set Views");
 
@@ -114,6 +120,15 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(LOGTAG,Uri.fromFile(saveFile).toString());
 
                 }
+            }
+        });
+
+
+        selectPicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(pickPhotoIntent, PERMISSIONS_PICK_PICTURE_REQUEST);
             }
         });
 
@@ -232,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.v(LOGTAG, "MainActivity Requesting Camera permission");
             openCamera.setClickable(false);
+            selectPicture.setClickable(false);
             requestCameraPermission();
         }
         //Setting Storage permissions
@@ -240,6 +256,7 @@ public class MainActivity extends AppCompatActivity {
             Log.v(LOGTAG, "MainActivity has storage permission");
         } else {
             openCamera.setClickable(false);
+            selectPicture.setClickable(false);
             Log.v(LOGTAG, "MainActivity Requesting storage permission");
             requestStoragePermission();
         }
@@ -247,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
         if (totalPermissions == 2 & cameraRequested & storageRequested){
             openCamera.setClickable(true);
             modeSwitch.setClickable(true);
+            selectPicture.setClickable(true);
         }
 
     }
@@ -326,20 +344,36 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode,data);
         Bitmap thumbnail = null;
         Log.v(LOGTAG,"requestCode: "+requestCode);
-        if (requestCode == PERMISSIONS_REQUEST_CAMERA) {
+        if (requestCode == PERMISSIONS_REQUEST_CAMERA && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Log.d(LOGTAG,"clicked queryLocation: "+queryLocation);
 
-            if (resultCode == RESULT_OK) {
+            Intent i = new Intent(this, CameraActivityInbuilt.class);
+            i.putExtra("from","MainActivity");
+            i.putExtra("runOffline",!modeSwitch.isChecked());
+//            i.putExtra("camera",true);
+            i.putExtra("queryLocation",queryLocation);
+            startActivity(i);
+//            finish();
+        }
 
-                Intent i = new Intent(this, CameraActivityInbuilt.class);
-                i.putExtra("from","MainActivity");
-                i.putExtra("runOffline",!modeSwitch.isChecked());
-                i.putExtra("queryLocation",queryLocation);
-                startActivity(i);
-//                finish();
+        if (requestCode == PERMISSIONS_PICK_PICTURE_REQUEST  && resultCode == RESULT_OK && data != null && data.getData() != null){
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
 
+            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+            cursor.moveToFirst();
 
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            queryLocation = cursor.getString(columnIndex);
+            cursor.close();
+            Log.d(LOGTAG,"selected queryLocation: "+queryLocation);
 
-            }
+            Intent i = new Intent(this, CameraActivityInbuilt.class);
+            i.putExtra("from","MainActivity");
+            i.putExtra("runOffline",!modeSwitch.isChecked());
+//            i.putExtra("cameraCapture",false);
+            i.putExtra("queryLocation",queryLocation);
+            startActivity(i);
 
         }
 
@@ -403,6 +437,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (totalPermissions == 2 & cameraRequested & storageRequested){
             openCamera.setClickable(true);
+            selectPicture.setClickable(true);
             modeSwitch.setClickable(true);
 
         }
