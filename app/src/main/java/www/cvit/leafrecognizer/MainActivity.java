@@ -131,6 +131,10 @@ public class MainActivity extends AppCompatActivity {
 
                 String saveFolder = Environment.getExternalStorageDirectory().toString()
                         +File.separator+BuildConfig.APPLICATION_ID+File.separator;
+                if(!new File(saveFolder).exists()){
+                    new File(saveFolder).mkdirs();
+                }
+
                 File saveFile = new File(saveFolder+fileName);
 
 
