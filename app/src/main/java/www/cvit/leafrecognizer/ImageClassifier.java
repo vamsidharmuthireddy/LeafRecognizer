@@ -99,7 +99,8 @@ public class ImageClassifier {
                     new Comparator<Map.Entry<String, Float>>() {
                         @Override
                         public int compare(Map.Entry<String, Float> o1, Map.Entry<String, Float> o2) {
-                            return (o1.getValue()).compareTo(o2.getValue());
+//                            return (o1.getValue()).compareTo(o2.getValue());  //ascending order
+                            return (o2.getValue()).compareTo(o1.getValue());    //descending order
                         }
                     });
 
@@ -271,14 +272,14 @@ public class ImageClassifier {
             Float tempLabelProb = labelProbArray[0][i];
 
             sortedLabels.add(new AbstractMap.SimpleEntry<>(tempLabel, tempLabelProb));
-//      Log.d(TAG, i+" : "+labelList.get(i)+" : "+labelProbArray[0][i]);
-//            if (sortedLabels.size() > RESULTS_TO_SHOW) {
+//            Log.d(TAG, i+" : "+labelList.get(i)+" : "+labelProbArray[0][i]);
+//            if (sortedLabels.size() > RESULTS_TO_SdHOW) {
 //                sortedLabels.poll();
 //            }
         }
 
 
-        Log.d(TAG,labelList.size()+" : "+sortedLabels.size());
+//        Log.d(TAG,labelList.size()+" : "+sortedLabels.size());
         String textToShow;
         final int size = sortedLabels.size();
 
@@ -294,7 +295,7 @@ public class ImageClassifier {
 //            Log.d(TAG,"OUT: "+labelNprob.getKey()+" : "+labelNprob.getValue());
             if ( trimCount < RESULTS_TO_SHOW) {
                 if (!Arrays.asList(label).contains(labelNprob.getKey())) {
-                    Log.d(TAG,"IN: "+labelNprob.getKey()+" : "+labelNprob.getValue()+"trimCount:"+trimCount);
+                    Log.d(TAG,"IN: "+labelNprob.getKey()+" : "+labelNprob.getValue()+" trimCount:"+trimCount);
                     label[trimCount] = labelNprob.getKey();
                     trimCount++;
                 }
