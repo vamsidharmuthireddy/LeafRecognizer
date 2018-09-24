@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.media.ExifInterface;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -68,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
     private Switch modeSwitch;
     private TextView modeSwitchText;
     public static String queryLocation;
+    private String userId;
+
+    private SessionManager sessionManager;
 
 
     @Override
@@ -86,10 +90,23 @@ public class MainActivity extends AppCompatActivity {
             Log.e(LOGTAG, "Failed to initialize an image classifier.");
         }
 //        setListeners();
+        setUserId();
 
         checkAllPermissions();
 
     }
+
+    private void setUserId(){
+        sessionManager = new SessionManager();
+        userId = giveUserId(8);
+        if (sessionManager.checkSessionPreferences(this, "userId")){
+            userId = sessionManager.getStringSessionPreferences(this, "userId",userId);
+        }else{
+            sessionManager.setSessionPreferences(this,"userId",userId);
+        }
+    }
+
+
 
     @Override
     protected void onResume() {
@@ -223,20 +240,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     private String giveUserId(int MAX_LENGTH){
-        Random generator = new Random();
-        StringBuilder randomStringBuilder = new StringBuilder();
-//        int randomLength = generator.nextInt(MAX_LENGTH);
-        char tempChar;
-//        for (int i = 0; i < randomLength; i++){
-        for (int i = 0; i < MAX_LENGTH; i++){
-            tempChar = (char) (generator.nextInt(96) + 32);
-            randomStringBuilder.append(tempChar);
+        String allChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder charBuilder = new StringBuilder();
+        Random rnd = new Random();
+        while (charBuilder.length() < MAX_LENGTH) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * allChars.length());
+            charBuilder.append(allChars.charAt(index));
         }
-        return randomStringBuilder.toString();
+
+        return charBuilder.toString();
     }
 
     private String generateFileName(){
-        String userId = giveUserId(10);
         String s = String.valueOf(System.currentTimeMillis());
         String time = s.substring(5, s.length());
 
@@ -329,8 +344,17 @@ public class MainActivity extends AppCompatActivity {
         Bitmap thumbnail = null;
         Log.v(LOGTAG,"requestCode: "+requestCode);
         if (requestCode == PERMISSIONS_REQUEST_CAMERA && resultCode == RESULT_OK) {
-
             Log.d(LOGTAG,"clicked queryLocation: "+queryLocation);
+
+            MediaScannerConnection.scanFile(this,
+                    new String[]{queryLocation}, null,
+                    new MediaScannerConnection.OnScanCompletedListener() {
+                        public void onScanCompleted(String path, Uri uri) {
+                            Log.i("ExternalStorage", "Scanned " + path + ":");
+                            Log.i("ExternalStorage", "-> uri=" + uri);
+                        }
+                    });
+
             Intent i = new Intent(this, CameraActivityInbuilt.class);
             i.putExtra("from","MainActivity");
             i.putExtra("runOffline",!modeSwitch.isChecked());
