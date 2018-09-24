@@ -218,8 +218,12 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     private void saveImage(Bitmap croppedImage){
 
         String fileName = generateFileName();
-        File croppedFile = new File(Environment.getExternalStorageDirectory(),
-                fileName);
+//        File croppedFile = new File(Environment.getExternalStorageDirectory(),
+//                fileName);
+        String saveFolder = Environment.getExternalStorageDirectory().toString()
+                +File.separator+BuildConfig.APPLICATION_ID+File.separator;
+        File croppedFile = new File(saveFolder+fileName);
+
         queryLocation = croppedFile.getAbsolutePath();
         if (croppedFile == null) {
             Log.w(LOGTAG, "Error creating media file, check storage permissions: ");// e.getMessage());

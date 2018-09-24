@@ -41,13 +41,13 @@ public class RunClassifier extends AsyncTask<Bitmap,Integer,String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
+        progressDialog.dismiss();
         delegate.processFinish(s);
     }
 
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        progressDialog.dismiss();
     }
 
     @Override

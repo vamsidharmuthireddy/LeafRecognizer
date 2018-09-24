@@ -246,18 +246,22 @@ public class ImageClassifier {
         Bitmap cropImg = Bitmap.createBitmap(queryBitmap, cropW, cropH, newWidth, newHeight);
         cropImg = Bitmap.createScaledBitmap(cropImg,DIM_IMG_SIZE_X,DIM_IMG_SIZE_Y,true);
 
-        try {
-            FileOutputStream fos1 = new FileOutputStream(
-                    new File(Environment.getExternalStorageDirectory(), "AA3.jpg"));
-            cropImg.compress(Bitmap.CompressFormat.JPEG, 100, fos1);
-            fos1.close();
-        }catch (FileNotFoundException e){
-            Log.v(TAG,"File Not Found "+e.getMessage());
-        }catch (IOException e){
-            Log.v(TAG,"Error accessing file: "+e.getMessage());
-        }
-        return cropImg;
+//        try {
+//            String fileName = "AA3.jpg";
+//
+//            String saveFolder = Environment.getExternalStorageDirectory().toString()
+//                    +File.separator+BuildConfig.APPLICATION_ID+File.separator;
+//            File saveFile = new File(saveFolder+fileName);
+//            FileOutputStream fos1 = new FileOutputStream(saveFile));
+//            cropImg.compress(Bitmap.CompressFormat.JPEG, 100, fos1);
+//            fos1.close();
+//        }catch (FileNotFoundException e){
+//            Log.v(TAG,"File Not Found "+e.getMessage());
+//        }catch (IOException e){
+//            Log.v(TAG,"Error accessing file: "+e.getMessage());
+//        }
 
+        return cropImg;
     }
 
     /** Prints top-K labels, to be shown in UI as the results. */

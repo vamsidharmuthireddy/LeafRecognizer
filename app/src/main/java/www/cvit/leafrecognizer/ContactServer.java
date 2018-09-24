@@ -149,7 +149,10 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
     private void saveResultImage(){
 
         FileOutputStream output = null;
-        resLocation = Environment.getExternalStorageDirectory().toString()+File.separator+"res.jpeg";
+        resLocation = Environment.getExternalStorageDirectory().toString()
+                +File.separator+BuildConfig.APPLICATION_ID+File.separator+"res.jpeg";
+
+
         Log.v(LOGTAG,resLocation);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 1;
