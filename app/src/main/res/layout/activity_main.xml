@@ -5,19 +5,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+    <!--android:background="@drawable/main_screen_image"-->
+
 
 
     <!--<include-->
-        <!--layout="@layout/tool_bar"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
+    <!--layout="@layout/tool_bar"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content" />-->
 
     <LinearLayout
         android:id="@+id/main_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_weight="0.3">
+        android:layout_weight="0.3"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,33 +29,44 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
                 android:layout_gravity="center"
+                android:layout_weight="0.5"
                 android:gravity="center">
 
                 <Button
                     android:id="@+id/openCamera"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
+                    android:layout_width="125dp"
+                    android:layout_height="125dp"
                     android:layout_gravity="center"
-                    android:background="@drawable/circle"
-                    android:text="Click Picture" />
+                    android:background="@drawable/circle1"
+                    android:drawableTop="@drawable/ic_camera"
+                    android:elevation="@dimen/activity_elevation"
+                    android:paddingBottom="25dp"
+                    android:paddingTop="25dp"
+                    android:stateListAnimator="@null"
+                    android:text="Camera" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
                 android:layout_gravity="center"
+                android:layout_weight="0.5"
                 android:gravity="center">
+
                 <Button
                     android:id="@+id/selectPicture"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    android:background="@drawable/circle"
-                    android:text="Select Picture"
-                    android:layout_gravity="center"/>
+                    android:layout_width="125dp"
+                    android:layout_height="125dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/circle2"
+                    android:drawableTop="@drawable/ic_gallery"
+                    android:elevation="@dimen/activity_elevation"
+                    android:paddingBottom="25dp"
+                    android:paddingTop="25dp"
+                    android:stateListAnimator="@null"
+                    android:text="Gallery" />
 
             </LinearLayout>
         </LinearLayout>
@@ -62,8 +75,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_weight="0.65">
+        android:layout_weight="0.65"
+        android:orientation="vertical">
 
         <Switch
             android:id="@+id/modeSwitch"
@@ -78,7 +91,9 @@
             android:layout_height="36dp"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Offline Mode" />
+            android:text="Offline Mode"
+            android:textColor="@color/colorBlack"
+            android:textSize="@dimen/activity_medium_text"/>
     </LinearLayout>
 
 </LinearLayout>

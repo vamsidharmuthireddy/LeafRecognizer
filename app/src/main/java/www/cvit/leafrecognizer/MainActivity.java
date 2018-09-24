@@ -1,7 +1,12 @@
 package www.cvit.leafrecognizer;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -28,6 +33,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -72,6 +78,14 @@ public class MainActivity extends AppCompatActivity {
     private String userId;
 
     private SessionManager sessionManager;
+
+
+    private Boolean openCameraButtonDown = false;
+    private Boolean selectPictureButtonDown = false;
+    final Float animationdownScale = 0.9f;
+    final Float animationUpScale = 1.25f;
+    final Float animationNormalScale = 1.0f;
+    final int animationScaleTime = 250;
 
 
     @Override
@@ -138,50 +152,226 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setListeners(){
-        openCamera.setOnClickListener(new View.OnClickListener() {
+
+        final View.OnTouchListener openCameraTouchListener = new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                String fileName = generateFileName();
+            public boolean onTouch(final View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        openCameraButtonDown = true;
+                        Log.v(LOGTAG, "openCamera Down Animation " + openCameraButtonDown);
+                        openCamera.clearAnimation();
+                        openCamera.animate().scaleX(animationdownScale).scaleY(animationdownScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation CANCEL");
+                                    }
 
-//                File saveFile = new File(Environment.getExternalStorageDirectory(),
-//                        fileName);
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation START");
+                                    }
 
-                String saveFolder = Environment.getExternalStorageDirectory().toString()
-                        +File.separator+BuildConfig.APPLICATION_ID+File.separator;
-                if(!new File(saveFolder).exists()){
-                    new File(saveFolder).mkdirs();
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation End " + openCameraButtonDown);
+                                    }
+                                })
+                                .start();
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        openCameraButtonDown = false;
+                        Log.v(LOGTAG, "openCamera UP Triggered " + openCameraButtonDown);
+                        openCamera.animate().scaleX(animationUpScale).scaleY(animationUpScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "openCamera UP animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "openCamera UP animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "openCamera UP animation End " + openCameraButtonDown);
+                                        if (!openCameraButtonDown) {
+                                            Log.v(LOGTAG, "openCamera Last Animation " + openCameraButtonDown);
+                                            String fileName = generateFileName();
+
+//                                            File saveFile = new File(Environment.getExternalStorageDirectory(),
+//                                                    fileName);
+
+                                            String saveFolder = Environment.getExternalStorageDirectory().toString()
+                                                    +File.separator+BuildConfig.APPLICATION_ID+File.separator;
+                                            if(!new File(saveFolder).exists()){
+                                                new File(saveFolder).mkdirs();
+                                            }
+
+                                            File saveFile = new File(saveFolder+fileName);
+
+
+                                            queryLocation = saveFile.getAbsolutePath();
+                                            final Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                                            if (saveFile != null){
+                                                Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                                                        BuildConfig.APPLICATION_ID + ".provider",
+                                                        saveFile);
+
+                                                takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
+                                                        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                                                takePicture.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
+
+                                                startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+
+                                                Log.d(LOGTAG,Uri.fromFile(saveFile).toString());
+
+                                            }
+                                            int startX = (int) v.getX();
+                                            int startY = (int) v.getY();
+                                            int width = v.getWidth();
+                                            int height = v.getHeight();
+                                            final ActivityOptions options = ActivityOptions.makeScaleUpAnimation(v, startX, startY, width, height);
+                                            PropertyValuesHolder scalex = PropertyValuesHolder.ofFloat(View.SCALE_X, animationNormalScale);
+                                            PropertyValuesHolder scaley = PropertyValuesHolder.ofFloat(View.SCALE_Y, animationNormalScale);
+                                            ObjectAnimator anim = ObjectAnimator.ofPropertyValuesHolder(openCamera, scalex, scaley);
+                                            //anim.setRepeatCount(1);
+                                            //anim.setRepeatMode(ValueAnimator.REVERSE);
+                                            anim.setDuration(animationScaleTime / 2);
+                                            anim.addListener(new AnimatorListenerAdapter() {
+                                                @Override
+                                                public void onAnimationEnd(Animator animation) {
+                                                    super.onAnimationEnd(animation);
+
+                                                    //startActivity(openGallery, options.toBundle());
+                                                    if (!openCamera.hasTransientState()) {
+                                                        startActivity(takePicture, options.toBundle());
+                                                    }
+                                                }
+                                            });
+                                            anim.start();
+
+
+                                        }
+                                    }
+                                })
+                                .start();
+                        return true;
                 }
 
-                File saveFile = new File(saveFolder+fileName);
-
-
-                queryLocation = saveFile.getAbsolutePath();
-                Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                if (saveFile != null){
-                    Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
-                            BuildConfig.APPLICATION_ID + ".provider",
-                            saveFile);
-
-                    takePicture.putExtra(MediaStore.EXTRA_SCREEN_ORIENTATION,
-                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                    takePicture.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
-
-                    startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
-
-                    Log.d(LOGTAG,Uri.fromFile(saveFile).toString());
-
-                }
+                return false;//does not recognise any other touch events
             }
-        });
+        };
 
+        openCamera.setOnTouchListener(openCameraTouchListener);
 
-        selectPicture.setOnClickListener(new View.OnClickListener() {
+        final View.OnTouchListener selectPictureOnTouchListener = new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(pickPhotoIntent, PERMISSIONS_PICK_PICTURE_REQUEST);
+            public boolean onTouch(final View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        selectPictureButtonDown = true;
+                        Log.v(LOGTAG, "selectPicture Down Animation " + selectPictureButtonDown);
+                        selectPicture.clearAnimation();
+                        selectPicture.animate().scaleX(animationdownScale).scaleY(animationdownScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation End " + selectPictureButtonDown);
+                                    }
+                                })
+                                .start();
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        selectPictureButtonDown = false;
+                        Log.v(LOGTAG, "selectPicture UP Triggered " + selectPictureButtonDown);
+                        selectPicture.animate().scaleX(animationUpScale).scaleY(animationUpScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "selectPicture UP animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "selectPicture UP animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "selectPicture UP animation End " + selectPictureButtonDown);
+                                        if (!selectPictureButtonDown) {
+                                            Log.v(LOGTAG, "selectPicture Last Animation " + selectPictureButtonDown);
+                                            final Intent pickPhotoIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+                                            int startX = (int) v.getX();
+                                            int startY = (int) v.getY();
+                                            int width = v.getWidth();
+                                            int height = v.getHeight();
+                                            final ActivityOptions options = ActivityOptions.makeScaleUpAnimation(v, startX, startY, width, height);
+                                            PropertyValuesHolder scalex = PropertyValuesHolder.ofFloat(View.SCALE_X, animationNormalScale);
+                                            PropertyValuesHolder scaley = PropertyValuesHolder.ofFloat(View.SCALE_Y, animationNormalScale);
+                                            ObjectAnimator anim = ObjectAnimator.ofPropertyValuesHolder(selectPicture, scalex, scaley);
+                                            //anim.setRepeatCount(1);
+                                            //anim.setRepeatMode(ValueAnimator.REVERSE);
+                                            anim.setDuration(animationScaleTime / 2);
+                                            anim.addListener(new AnimatorListenerAdapter() {
+                                                @Override
+                                                public void onAnimationEnd(Animator animation) {
+                                                    super.onAnimationEnd(animation);
+
+                                                    //startActivity(openGallery, options.toBundle());
+                                                    if (!selectPicture.hasTransientState()) {
+                                                        startActivityForResult(pickPhotoIntent, PERMISSIONS_PICK_PICTURE_REQUEST);
+                                                    }
+                                                }
+                                            });
+                                            anim.start();
+
+
+                                        }
+                                    }
+                                })
+                                .start();
+                        return true;
+                }
+
+                return false;//does not recognise any other touch events
             }
-        });
+        };
+
+        selectPicture.setOnTouchListener(selectPictureOnTouchListener);
 
 
         CompoundButton.OnCheckedChangeListener modeSwitchListener =
@@ -210,14 +400,199 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setDummyListeners(){
-        final String permissionResuestText = "Please give permissions in Settings";
+        final String permissionRequestText = "Please give required permissions in Settings";
 
-        openCamera.setOnClickListener(new View.OnClickListener() {
+        final View.OnTouchListener openCameraTouchListener = new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                Toast.makeText(MainActivity.this,permissionResuestText,Toast.LENGTH_LONG).show();
+            public boolean onTouch(final View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        openCameraButtonDown = true;
+                        Log.v(LOGTAG, "openCamera Down Animation " + openCameraButtonDown);
+                        openCamera.clearAnimation();
+                        openCamera.animate().scaleX(animationdownScale).scaleY(animationdownScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "openCamera DOWN animation End " + openCameraButtonDown);
+                                    }
+                                })
+                                .start();
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        openCameraButtonDown = false;
+                        Log.v(LOGTAG, "openCamera UP Triggered " + openCameraButtonDown);
+                        openCamera.animate().scaleX(animationUpScale).scaleY(animationUpScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "openCamera UP animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "openCamera UP animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "openCamera UP animation End " + openCameraButtonDown);
+                                        if (!openCameraButtonDown) {
+                                            Log.v(LOGTAG, "openCamera Last Animation " + openCameraButtonDown);
+
+
+                                            int startX = (int) v.getX();
+                                            int startY = (int) v.getY();
+                                            int width = v.getWidth();
+                                            int height = v.getHeight();
+                                            final ActivityOptions options = ActivityOptions.makeScaleUpAnimation(v, startX, startY, width, height);
+                                            PropertyValuesHolder scalex = PropertyValuesHolder.ofFloat(View.SCALE_X, animationNormalScale);
+                                            PropertyValuesHolder scaley = PropertyValuesHolder.ofFloat(View.SCALE_Y, animationNormalScale);
+                                            ObjectAnimator anim = ObjectAnimator.ofPropertyValuesHolder(openCamera, scalex, scaley);
+                                            //anim.setRepeatCount(1);
+                                            //anim.setRepeatMode(ValueAnimator.REVERSE);
+                                            anim.setDuration(animationScaleTime / 2);
+                                            anim.addListener(new AnimatorListenerAdapter() {
+                                                @Override
+                                                public void onAnimationEnd(Animator animation) {
+                                                    super.onAnimationEnd(animation);
+
+                                                    //startActivity(openGallery, options.toBundle());
+                                                    if (!openCamera.hasTransientState()) {
+                                                        Toast.makeText(MainActivity.this,permissionRequestText,Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                            });
+                                            anim.start();
+
+
+                                        }
+                                    }
+                                })
+                                .start();
+                        return true;
+                }
+
+                return false;//does not recognise any other touch events
             }
-        });
+        };
+
+        openCamera.setOnTouchListener(openCameraTouchListener);
+
+        final View.OnTouchListener selectPictureOnTouchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        selectPictureButtonDown = true;
+                        Log.v(LOGTAG, "selectPicture Down Animation " + selectPictureButtonDown);
+                        selectPicture.clearAnimation();
+                        selectPicture.animate().scaleX(animationdownScale).scaleY(animationdownScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "selectPicture DOWN animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "selectPicture DOWN animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "selectPicture DOWN animation End " + selectPictureButtonDown);
+                                    }
+                                })
+                                .start();
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        selectPictureButtonDown = false;
+                        Log.v(LOGTAG, "selectPicture UP Triggered " + selectPictureButtonDown);
+                        selectPicture.animate().scaleX(animationUpScale).scaleY(animationUpScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "selectPicture UP animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "selectPicture UP animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "selectPicture UP animation End " + selectPictureButtonDown);
+                                        if (!selectPictureButtonDown) {
+                                            Log.v(LOGTAG, "selectPicture Last Animation " + selectPictureButtonDown);
+
+                                            int startX = (int) v.getX();
+                                            int startY = (int) v.getY();
+                                            int width = v.getWidth();
+                                            int height = v.getHeight();
+                                            final ActivityOptions options = ActivityOptions.makeScaleUpAnimation(v, startX, startY, width, height);
+                                            PropertyValuesHolder scalex = PropertyValuesHolder.ofFloat(View.SCALE_X, animationNormalScale);
+                                            PropertyValuesHolder scaley = PropertyValuesHolder.ofFloat(View.SCALE_Y, animationNormalScale);
+                                            ObjectAnimator anim = ObjectAnimator.ofPropertyValuesHolder(selectPicture, scalex, scaley);
+                                            //anim.setRepeatCount(1);
+                                            //anim.setRepeatMode(ValueAnimator.REVERSE);
+                                            anim.setDuration(animationScaleTime / 2);
+                                            anim.addListener(new AnimatorListenerAdapter() {
+                                                @Override
+                                                public void onAnimationEnd(Animator animation) {
+                                                    super.onAnimationEnd(animation);
+
+                                                    //startActivity(openGallery, options.toBundle());
+                                                    if (!selectPicture.hasTransientState()) {
+                                                        Toast.makeText(MainActivity.this,permissionRequestText,Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                            });
+                                            anim.start();
+
+
+                                        }
+                                    }
+                                })
+                                .start();
+                        return true;
+                }
+
+                return false;//does not recognise any other touch events
+            }
+        };
+
+        selectPicture.setOnTouchListener(selectPictureOnTouchListener);
+
 
         CompoundButton.OnCheckedChangeListener modeSwitchListener =
                 new CompoundButton.OnCheckedChangeListener() {
