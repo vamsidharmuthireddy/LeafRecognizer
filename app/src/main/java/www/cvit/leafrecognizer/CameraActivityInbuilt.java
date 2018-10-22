@@ -24,6 +24,11 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.support.v8.renderscript.Allocation;
+import android.support.v8.renderscript.RenderScript;
+import android.support.v8.renderscript.ScriptIntrinsicBlur;
+import android.support.v8.renderscript.ScriptIntrinsicResize;
+import android.support.v8.renderscript.Type;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -193,7 +198,62 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         }
     }
 
+    public static Bitmap resizeBitmap2(RenderScript rs, Bitmap src, int minSize) {
+        Bitmap.Config  bitmapConfig = src.getConfig();
+        int srcWidth = src.getWidth();
+        int srcHeight = src.getHeight();
+        float srcAspectRatio = (float) srcWidth / srcHeight;
+        Log.v("CameraActivityInbuilt","Old: "+srcWidth+" X "+srcHeight);
 
+        int dstWidth = src.getWidth();
+        int dstHeight = src.getHeight();
+
+        if (srcAspectRatio < 1) {
+            dstWidth = minSize;
+            dstHeight = (int) (dstWidth / srcAspectRatio);
+        } else if(srcAspectRatio >= 1){
+            dstHeight = minSize;
+            dstWidth = (int) (dstHeight * srcAspectRatio);
+        }
+
+        Log.v("CameraActivityInbuilt","New: "+dstWidth+" X "+dstHeight);
+
+        float resizeRatio = (float) srcWidth / dstWidth;
+
+        /* Calculate gaussian's radius */
+        float sigma = resizeRatio / (float) Math.PI;
+        // https://android.googlesource.com/platform/frameworks/rs/+/master/cpu_ref/rsCpuIntrinsicBlur.cpp
+        float radius = 2.5f * sigma - 1.5f;
+        radius = Math.min(25, Math.max(0.0001f, radius));
+
+        /* Gaussian filter */
+        Allocation tmpIn = Allocation.createFromBitmap(rs, src);
+        Allocation tmpFiltered = Allocation.createTyped(rs, tmpIn.getType());
+        ScriptIntrinsicBlur blurInstrinsic = ScriptIntrinsicBlur.create(rs, tmpIn.getElement());
+
+        blurInstrinsic.setRadius(radius);
+        blurInstrinsic.setInput(tmpIn);
+        blurInstrinsic.forEach(tmpFiltered);
+
+        tmpIn.destroy();
+        blurInstrinsic.destroy();
+
+        /* Resize */
+        Bitmap dst = Bitmap.createBitmap(dstWidth, dstHeight, bitmapConfig);
+        Type t = Type.createXY(rs, tmpFiltered.getElement(), dstWidth, dstHeight);
+        Allocation tmpOut = Allocation.createTyped(rs, t);
+        ScriptIntrinsicResize resizeIntrinsic = ScriptIntrinsicResize.create(rs);
+
+        resizeIntrinsic.setInput(tmpFiltered);
+        resizeIntrinsic.forEach_bicubic(tmpOut);
+        tmpOut.copyTo(dst);
+
+        tmpFiltered.destroy();
+        tmpOut.destroy();
+        resizeIntrinsic.destroy();
+
+        return dst;
+    }
 
     public Bitmap getResizedBitmap(Bitmap image, int minSize) {
 
@@ -234,7 +294,10 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         try {
 
             FileOutputStream fos = new FileOutputStream(croppedFile);
-            Bitmap resizedImage = getResizedBitmap(croppedImage, MIN_SIZE);
+//            Bitmap resizedImage = getResizedBitmap(croppedImage, MIN_SIZE);
+            RenderScript rs = RenderScript.create(CameraActivityInbuilt.this);
+            Bitmap resizedImage = resizeBitmap2(rs,croppedImage,MIN_SIZE);
+
             resizedImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
             Log.d(LOGTAG,"croppedFile: "+croppedFile.toString());
