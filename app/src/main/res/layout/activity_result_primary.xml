@@ -77,13 +77,29 @@
         android:gravity="center"
         android:layout_gravity="center"
         android:clipToPadding="false">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerview_result_primary"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            android:elevation="30dp"/>
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textview_noconnection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:elevation="@dimen/activity_elevation"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_result_primary"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"
+                android:elevation="30dp"/>
+
+        </RelativeLayout>
+
+
     </LinearLayout>
 
 </LinearLayout>

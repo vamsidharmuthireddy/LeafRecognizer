@@ -12,7 +12,8 @@
     <item
         android:id="@+id/cropPicture"
         app:showAsAction="ifRoom|withText"
-        android:title="crop"
+        android:title="Confirm Selection"
+        android:itemBackground="@color/colorGray"
         >
     </item>
 </menu>

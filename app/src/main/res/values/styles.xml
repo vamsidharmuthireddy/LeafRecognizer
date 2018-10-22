@@ -18,15 +18,21 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
 
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:colorBackground">@color/colorGray</item>
+        <item name="android:textColor">@color/colorBlack</item>
+    </style>
 
     <style name="ToolbarColoredBackArrow" parent="AppTheme">
         <item name="android:background">@color/colorWhite</item>
         <item name="android:textColorPrimary">@color/colorBlack</item>
+        <item name="android:itemBackground">@color/colorGray</item>
 
     </style>
 
@@ -104,5 +110,14 @@
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
 
+    <style name="SelectionSwitch" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">#1cec0a</item>
 
+        <!-- inactive thumb color -->
+        <item name="colorSwitchThumbNormal">#28c71a</item>
+
+        <!-- inactive track color (30% transparency) -->
+        <item name="android:colorForeground">#15ff00</item>
+    </style>
 </resources>

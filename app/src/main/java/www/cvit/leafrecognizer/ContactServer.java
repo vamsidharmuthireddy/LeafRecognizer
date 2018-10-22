@@ -40,6 +40,8 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
     private String resultString;
     private String resLocation;
 
+    private int responseCode;
+
     private File mFile;
     private final String serverURL =
             "http://preon.iiit.ac.in/~vamsidhar_muthireddy/leaf_recognizer_router/preon2node.php";
@@ -116,7 +118,10 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
                 // send multipart form data after file data...
                 dos.writeBytes(lineEnd);
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                responseCode = conn.getResponseCode();
                 final int server_response_code = conn.getResponseCode();
+
                 Log.v(LOGTAG,"Server response code: "+server_response_code);
                 if(server_response_code >= 200 &&  server_response_code < 400){
                     activity.runOnUiThread(new Runnable() {
@@ -252,6 +257,7 @@ public class ContactServer extends AsyncTask<String,Void,Void> {
 
         callAnnotation.putExtra("queryLocation", inputImageFilePath);
         callAnnotation.putExtra("runOffline",false);
+        callAnnotation.putExtra("responseCode",responseCode);
 
 //        ByteArrayOutputStream bs = new ByteArrayOutputStream();
 //        resultBitmap.compress(Bitmap.CompressFormat.JPEG,50,bs);

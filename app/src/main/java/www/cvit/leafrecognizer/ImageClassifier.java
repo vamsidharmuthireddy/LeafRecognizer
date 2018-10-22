@@ -18,20 +18,13 @@ package www.cvit.leafrecognizer;
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.os.Environment;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -51,7 +44,7 @@ public class ImageClassifier {
 //public class ImageClassifier implements Serializable{
 
     /** Tag for the {@link Log}. */
-    private static final String TAG = "TfLiteCameraDemo";
+    private static final String LOGTAG = "ImageClassifier";
 
     /** Name of the model file stored in Assets. */
     private static final String MODEL_PATH = "graph.lite";
@@ -70,8 +63,12 @@ public class ImageClassifier {
     static final int DIM_IMG_SIZE_X = 224;
     static final int DIM_IMG_SIZE_Y = 224;
 
-    private static final int IMAGE_MEAN = 128;
-    private static final float IMAGE_STD = 128.0f;
+//    private static final int IMAGE_MEAN = 128;
+//    private static final float IMAGE_STD = 128.0f;
+
+
+    private static final int[] IMAGE_MEAN = {124,116,104};
+    private static final float[] IMAGE_STD = {58.395f,57.12f,57.375f};
 
 
     /* Preallocated buffers for storing image data in. */
@@ -112,7 +109,7 @@ public class ImageClassifier {
                 ByteBuffer.allocateDirect(
                         4 * DIM_BATCH_SIZE * DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y * DIM_PIXEL_SIZE);
         imgData.order(ByteOrder.nativeOrder());
-        Log.d(TAG, "Created a Tensorflow Lite Image Classifier.");
+        Log.d(LOGTAG, "Created a Tensorflow Lite Image Classifier.");
     }
 
     /** Classifies a frame from the preview stream. */
@@ -120,7 +117,7 @@ public class ImageClassifier {
         labelProbArray = new float[1][labelList.size()];
         filterLabelProbArray = new float[FILTER_STAGES][labelList.size()];
         if (tflite == null) {
-            Log.e(TAG, "Image classifier has not been initialized; Skipped.");
+            Log.e(LOGTAG, "Image classifier has not been initialized; Skipped.");
             return "Uninitialized Classifier.";
         }
         convertBitmapToByteBuffer(bitmap);
@@ -128,7 +125,7 @@ public class ImageClassifier {
         long startTime = SystemClock.uptimeMillis();
         tflite.run(imgData, labelProbArray);
         long endTime = SystemClock.uptimeMillis();
-        Log.d(TAG, "Timecost to run model inference: " + Long.toString(endTime - startTime));
+        Log.d(LOGTAG, "Timecost to run model inference: " + Long.toString(endTime - startTime));
 
         // smooth the results
         applyFilter();
@@ -144,7 +141,7 @@ public class ImageClassifier {
 
     void applyFilter(){
         int num_labels =  labelList.size();
-//    Log.d(TAG,"p0:"+Float.toString(filterLabelProbArray[0][0])
+//    Log.d(LOGTAG,"p0:"+Float.toString(filterLabelProbArray[0][0])
 //              +"p1:"+Float.toString(filterLabelProbArray[1][0])
 //              +"p2:"+Float.toString(filterLabelProbArray[2][0]));
 
@@ -167,7 +164,7 @@ public class ImageClassifier {
         for(int j=0; j<num_labels; ++j){
             labelProbArray[0][j] = filterLabelProbArray[FILTER_STAGES-1][j];
         }
-//    Log.d(TAG,"a0:"+Float.toString(filterLabelProbArray[0][0])
+//    Log.d(LOGTAG,"a0:"+Float.toString(filterLabelProbArray[0][0])
 //            +"a1:"+Float.toString(filterLabelProbArray[1][0])
 //            +"a2:"+Float.toString(filterLabelProbArray[2][0]));
 
@@ -221,22 +218,22 @@ public class ImageClassifier {
         for (int i = 0; i < DIM_IMG_SIZE_X; ++i) {
             for (int j = 0; j < DIM_IMG_SIZE_Y; ++j) {
                 final int val = intValues[pixel++];
-//        Log.d(TAG,"val:"+val);
+//        Log.d(LOGTAG,"val:"+val);
                 //val is ARGB and is 32 bit and has range 0-255
-                imgData.putFloat((((val >> 16) & 0xFF)-IMAGE_MEAN)/IMAGE_STD);  //Red
-                imgData.putFloat((((val >> 8) & 0xFF)-IMAGE_MEAN)/IMAGE_STD);   //Green
-                imgData.putFloat((((val) & 0xFF)-IMAGE_MEAN)/IMAGE_STD);        //Blue
+                imgData.putFloat((((val >> 16) & 0xFF)-IMAGE_MEAN[0])/IMAGE_STD[0]);  //Red
+                imgData.putFloat((((val >> 8) & 0xFF)-IMAGE_MEAN[1])/IMAGE_STD[1]);   //Green
+                imgData.putFloat((((val) & 0xFF)-IMAGE_MEAN[2])/IMAGE_STD[2]);        //Blue
             }
         }
         long endTime = SystemClock.uptimeMillis();
-        Log.d(TAG, "Timecost to put values into ByteBuffer: " + Long.toString(endTime - startTime));
+        Log.d(LOGTAG, "Timecost to put values into ByteBuffer: " + Long.toString(endTime - startTime));
     }
 
 
     private Bitmap cropNResizeBitmap(Bitmap queryBitmap){
         int width = queryBitmap.getWidth();
         int height = queryBitmap.getHeight();
-        Log.d(TAG,"bitmapWidth: "+width+" bitmapHeight: "+height);
+        Log.d(LOGTAG,"bitmapWidth: "+width+" bitmapHeight: "+height);
 
         int newWidth = (height > width) ? width : height;
         int newHeight = (height > width)? height - ( height - width) : height;
@@ -246,21 +243,6 @@ public class ImageClassifier {
         cropH = (cropH < 0)? 0: cropH;
         Bitmap cropImg = Bitmap.createBitmap(queryBitmap, cropW, cropH, newWidth, newHeight);
         cropImg = Bitmap.createScaledBitmap(cropImg,DIM_IMG_SIZE_X,DIM_IMG_SIZE_Y,true);
-
-//        try {
-//            String fileName = "AA3.jpg";
-//
-//            String saveFolder = Environment.getExternalStorageDirectory().toString()
-//                    +File.separator+BuildConfig.APPLICATION_ID+File.separator;
-//            File saveFile = new File(saveFolder+fileName);
-//            FileOutputStream fos1 = new FileOutputStream(saveFile));
-//            cropImg.compress(Bitmap.CompressFormat.JPEG, 100, fos1);
-//            fos1.close();
-//        }catch (FileNotFoundException e){
-//            Log.v(TAG,"File Not Found "+e.getMessage());
-//        }catch (IOException e){
-//            Log.v(TAG,"Error accessing file: "+e.getMessage());
-//        }
 
         return cropImg;
     }
@@ -272,35 +254,28 @@ public class ImageClassifier {
             Float tempLabelProb = labelProbArray[0][i];
 
             sortedLabels.add(new AbstractMap.SimpleEntry<>(tempLabel, tempLabelProb));
-//            Log.d(TAG, i+" : "+labelList.get(i)+" : "+labelProbArray[0][i]);
-//            if (sortedLabels.size() > RESULTS_TO_SdHOW) {
-//                sortedLabels.poll();
-//            }
+
         }
 
 
-//        Log.d(TAG,labelList.size()+" : "+sortedLabels.size());
+//        Log.d(LOGTAG,labelList.size()+" : "+sortedLabels.size());
         String textToShow;
         final int size = sortedLabels.size();
 
-//        for (int i = 0; i < size; ++i) {
-//            Map.Entry<String, Float> label = sortedLabels.poll();
-//            textToShow = String.format("\n%s: %4.2f",label.getKey(),label.getValue()) + textToShow;
-//        }
 
         String[] label = new String[RESULTS_TO_SHOW];
         int trimCount = 0;
         for (int i = 0; i < size; ++i) {
             Map.Entry<String, Float> labelNprob = sortedLabels.poll();
-//            Log.d(TAG,"OUT: "+labelNprob.getKey()+" : "+labelNprob.getValue());
+//            Log.d(LOGTAG,"OUT: "+labelNprob.getKey()+" : "+labelNprob.getValue());
             if ( trimCount < RESULTS_TO_SHOW) {
                 if (!Arrays.asList(label).contains(labelNprob.getKey())) {
-                    Log.d(TAG,"IN: "+labelNprob.getKey()+" : "+labelNprob.getValue()+" trimCount:"+trimCount);
+//                    Log.d(LOGTAG,"IN: "+labelNprob.getKey()+" : "+labelNprob.getValue()+" trimCount:"+trimCount);
                     label[trimCount] = labelNprob.getKey();
                     trimCount++;
                 }
             }else{
-                Log.d(TAG,"Done with 10 labels. Label size: "+label.length);
+                Log.d(LOGTAG,"Done with 10 labels. Label size: "+label.length);
                 break;
             }
 

@@ -29,6 +29,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -72,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
     public static ImageClassifier classifier;
     private Button openCamera;
     private Button selectPicture;
-    private Switch modeSwitch;
+//    private Switch modeSwitch;
+    private SwitchCompat modeSwitch;
     private TextView modeSwitchText;
     public static String queryLocation;
     private String userId;
@@ -134,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setViews(){
         openCamera = (Button)findViewById(R.id.openCamera);
-        modeSwitch = (Switch) findViewById(R.id.modeSwitch);
+        modeSwitch = (SwitchCompat) findViewById(R.id.modeSwitch);
         modeSwitchText = (TextView) findViewById(R.id.modeSwitchText);
         selectPicture = (Button) findViewById(R.id.selectPicture);
 

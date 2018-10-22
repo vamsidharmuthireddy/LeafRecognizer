@@ -78,12 +78,13 @@
         android:layout_weight="0.65"
         android:orientation="vertical">
 
-        <Switch
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/modeSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:checked="false" />
+            android:checked="true"
+            android:theme="@style/SelectionSwitch" />
 
         <TextView
             android:id="@+id/modeSwitchText"
@@ -91,7 +92,7 @@
             android:layout_height="36dp"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Offline Mode"
+            android:text="Online Mode"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/activity_medium_text"/>
     </LinearLayout>

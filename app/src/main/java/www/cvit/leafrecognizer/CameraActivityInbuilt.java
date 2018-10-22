@@ -20,9 +20,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -46,6 +43,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+//import android.support.v8.renderscript.*;
+
 /**
  * Created by vamsidhar on 4/12/17.
  */
@@ -57,6 +56,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     public static MenuItem menuItem;
     private CropImageView cropImageView;
     private int MAX_SIZE = 640;
+    private int MIN_SIZE = 448;
     private Boolean runOffline = true;
     private ImageClassifier classifier;
 
@@ -75,21 +75,15 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setBackgroundColor(Color.WHITE);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setTitle("");
+        toolbar.setSubtitle("");
 
         Intent intent = getIntent();
         runOffline = (Boolean)intent.getExtras().getBoolean("runOffline");
         queryLocation = intent.getStringExtra("queryLocation");
 
-//        Bundle bundle = intent.getExtras();
-//        classifier = (ImageClassifier) bundle.getSerializable("classifier");
-//        classifier = (ImageClassifier)intent.getSerializableExtra("classifier");
-//        classifier = new MainActivity().classifier;
-
         classifier = MainActivity.classifier;
-
-
-//        String saveName = Environment.getExternalStorageDirectory().toString()
-//                + File.separator + getString(R.string.save_name);
 
         getBitmap(queryLocation);
 
@@ -199,17 +193,25 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         }
     }
 
-    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+
+
+    public Bitmap getResizedBitmap(Bitmap image, int minSize) {
+
+        float temp = Math.min(image.getHeight(),image.getWidth())/MIN_SIZE;
+        int fact = (int) (Math.log(temp)/Math.log(2));
+
+        int min_size = minSize ;
+
         int width = image.getWidth();
         int height = image.getHeight();
         Log.v(LOGTAG,"Old: "+width+" X "+height);
 
         float bitmapRatio = (float)width / (float) height;
-        if (bitmapRatio >= 1 && width>=MAX_SIZE) {
-            width = maxSize;
+        if (bitmapRatio < 1) {
+            width = minSize;
             height = (int) (width / bitmapRatio);
-        } else if(bitmapRatio < 1 && height>=MAX_SIZE){
-            height = maxSize;
+        } else if(bitmapRatio >= 1){
+            height = minSize;
             width = (int) (height * bitmapRatio);
         }
         Log.v(LOGTAG,"New: "+width+" X "+height);
@@ -220,23 +222,20 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     private void saveImage(Bitmap croppedImage){
 
         String fileName = generateFileName();
-//        File croppedFile = new File(Environment.getExternalStorageDirectory(),
-//                fileName);
         String saveFolder = Environment.getExternalStorageDirectory().toString()
                 +File.separator+BuildConfig.APPLICATION_ID+File.separator;
         File croppedFile = new File(saveFolder+fileName);
 
         queryLocation = croppedFile.getAbsolutePath();
         if (croppedFile == null) {
-            Log.w(LOGTAG, "Error creating media file, check storage permissions: ");// e.getMessage());
+            Log.w(LOGTAG, "Error creating media file, check storage permissions: ");
             return;
         }
         try {
 
             FileOutputStream fos = new FileOutputStream(croppedFile);
-//            cropped.compress(Bitmap.CompressFormat.JPEG, 80, fos);
-            Bitmap temp = getResizedBitmap(croppedImage, MAX_SIZE);
-            temp.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+            Bitmap resizedImage = getResizedBitmap(croppedImage, MIN_SIZE);
+            resizedImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
             Log.d(LOGTAG,"croppedFile: "+croppedFile.toString());
             fos.close();
@@ -252,7 +251,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
 
 
             if (runOffline){
-               runOfflineClassifier(croppedImage);
+               runOfflineClassifier(resizedImage);
             }else {
                 sendToServer(croppedFile);
             }
@@ -270,25 +269,12 @@ public class CameraActivityInbuilt extends AppCompatActivity {
                     "Uninitialized Classifier or null bitmap.",Toast.LENGTH_LONG).show();
             return ;
         }
-//                int newWidth = 224;
-//                int newHeight = 224;
-//
-//
-//                Bitmap cropImg = Bitmap.createBitmap(croppedImage, 138, 0, 364, 364);
-//                cropImg = Bitmap.createScaledBitmap(cropImg,newWidth,newHeight,true);
-//
-//                FileOutputStream fos1 = new FileOutputStream(
-//                        new File(Environment.getExternalStorageDirectory(),"AA1.jpg"));
-//                cropImg.compress(Bitmap.CompressFormat.JPEG,100,fos1);
-//                fos1.close();
-
-//                String resultString = classifier.classifyFrame(croppedImage);
 
         RunClassifier.AsyncResponse delegate = new RunClassifier.AsyncResponse(){
             @Override
             public void processFinish(String output) {
                 String resultString = output;
-                Toast.makeText(CameraActivityInbuilt.this,resultString,Toast.LENGTH_LONG).show();
+//                Toast.makeText(CameraActivityInbuilt.this,resultString,Toast.LENGTH_LONG).show();
 
                 Log.v(LOGTAG,resultString);
                 Intent callAnnotation = new Intent(CameraActivityInbuilt.this, ResultPrimaryActivity.class);

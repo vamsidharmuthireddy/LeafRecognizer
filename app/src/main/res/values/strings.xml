@@ -61,4 +61,7 @@
 
     <string name="intro">Leaf recognizer is created in an effort to bring expert knowledge on plants to the hands of an user. Our dataset on Indian plants grows every day. You can click the camera icon on top to take a picture leaf of any plant you want to identify.</string>
 
+    <string name="noconnection_text">Sorry, We are having trouble contacting our server</string>
+    <string name="nomatches_text">Sorry, We cannot find any matches with the query</string>
+
 </resources>

@@ -17,6 +17,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,6 +35,9 @@ public class ResultPrimaryActivity extends AppCompatActivity{
     private RecyclerView recyclerView;
     private RecyclerView.Adapter recyclerViewAdapter;
     private RecyclerView.LayoutManager recyclerViewLayoutManager;
+
+    private TextView noconnectionTextView;
+    private String noconnectionText;
 
     private static final String LOGTAG = "ResultPrimaryActivity";
 
@@ -61,6 +67,10 @@ public class ResultPrimaryActivity extends AppCompatActivity{
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+
+        noconnectionTextView = findViewById(R.id.textview_noconnection);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerview_result_primary);
 
         queryLocation = getIntent().getStringExtra("queryLocation");
         imgFile = new  File(queryLocation);
@@ -92,40 +102,59 @@ public class ResultPrimaryActivity extends AppCompatActivity{
 
         runOffline =  getIntent().getExtras().getBoolean("runOffline");
 
+
+
         if(getIntent().hasExtra("resultString")) {
             String result = getIntent().getStringExtra("resultString");
 
 
             Log.v(LOGTAG,"result = "+result);
             if (result==null){
-                for (int i=0;i<resultString.length;i++){
-                    resultString[i] = "1";
-                }
-            }else {
-                resultString = result.split("\t");
-            }
+//                for (int i=0;i<resultString.length;i++){
+//                    resultString[i] = "1";
+//                }
+                recyclerView.setVisibility(View.INVISIBLE);
 
+                noconnectionText = getString(R.string.noconnection_text);
+
+                if (!runOffline){
+                    int responseCode = getIntent().getExtras().getInt("responseCode");
+                    if (responseCode>=200 && responseCode<400){
+                        noconnectionText = getString(R.string.nomatches_text);
+                       }
+                }
+
+
+                noconnectionTextView.setText(noconnectionText);
+            }else {
+                noconnectionTextView.setVisibility(View.INVISIBLE);
+
+                resultString = result.split("\t");
+
+                loadleaf();
+
+
+                recyclerView.setHasFixedSize(true);
+                //recyclerViewLayoutManager = new LinearLayoutManager(getActivity());
+                recyclerViewLayoutManager = new PreLoadingLinearLayoutManager(ResultPrimaryActivity.this);
+                new PreLoadingLinearLayoutManager(ResultPrimaryActivity.this).setPages(1);
+
+                recyclerView.setLayoutManager(recyclerViewLayoutManager);
+
+                recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this,
+                        leafInfo, resultString, runOffline);
+
+//        recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this);
+                recyclerViewAdapter.setHasStableIds(true);
+                recyclerView.setAdapter(recyclerViewAdapter);
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+
+
+            }
 
         }
 
-        loadleaf();
-
-
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerview_result_primary);
-        recyclerView.setHasFixedSize(true);
-        //recyclerViewLayoutManager = new LinearLayoutManager(getActivity());
-        recyclerViewLayoutManager = new PreLoadingLinearLayoutManager(ResultPrimaryActivity.this);
-        new PreLoadingLinearLayoutManager(ResultPrimaryActivity.this).setPages(1);
-
-        recyclerView.setLayoutManager(recyclerViewLayoutManager);
-
-        recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this,
-                                leafInfo, resultString, runOffline);
-
-//        recyclerViewAdapter = new ResultPrimaryAdapter(ResultPrimaryActivity.this);
-        recyclerViewAdapter.setHasStableIds(true);
-        recyclerView.setAdapter(recyclerViewAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
     }
 
