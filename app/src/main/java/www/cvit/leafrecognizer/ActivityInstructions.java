@@ -14,6 +14,7 @@ public class ActivityInstructions extends AppCompatActivity {
     private TextView card4;
     private TextView card5;
     private TextView card6;
+    private TextView card7;
 
 
 
@@ -39,6 +40,9 @@ public class ActivityInstructions extends AppCompatActivity {
 
         card6 = (TextView)findViewById(R.id.inst6).findViewById(R.id.cardview_text);
         card6.setText(getString(R.string.intro_inst6));
+
+        card7 = (TextView)findViewById(R.id.inst7).findViewById(R.id.cardview_text);
+        card7.setText(getString(R.string.intro_inst7));
 
 
     }

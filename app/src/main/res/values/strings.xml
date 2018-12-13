@@ -65,7 +65,11 @@
     <string name="offline_mode">Offline Mode</string>
     <string name="next">Next</string>
     <string name="got_it">Got it</string>
-
+    <string name="edit">Edit</string>
+    <string name="orig">Original</string>
+    <string name="confirm">Confirm</string>
+    <string name="editSection">Edit Section</string>
+    <string name="edditSectionIntro">The clicked pictures can be further edited in this section</string>
 
     <string name="intro">Leaf recognizer is created in an effort to bring expert knowledge on plants to the hands of an user. Our dataset on Indian plants grows every day. You can click the camera icon on top to take a picture leaf of any plant you want to identify.</string>
 
@@ -82,6 +86,7 @@
     <string name="intro_inst3">This switch can be toggled for offline mode. In offline mode, any picture taken will be processed on the mobile itself and the results will be displayed using the app. All the computations will be done using mobile hardware. You will not need any active internet connection when using this mode.</string>
     <string name="intro_inst4">Using this icon, you can access camera application on your mobile. The picture clicked by camera by this process is used by Leaf recognizer for further processing.</string>
     <string name="intro_inst5">Using this icon, you can access the picture gallery on your mobile. The picture selected from the gallery/files by this process is used by Leaf recognizer for further processing.</string>
-    <string name="intro_inst6">After query image is acquired, it will be displayed in the app and you need to specify the part of the image you want to recognise using a rectangular box. Upon completion, click the "Confirm Selection" button situated at the top-right corner to identify the selection in the picture.</string>
+    <string name="intro_inst6">After query image is acquired, it will be displayed in the app. If the leaf/plant occupy very little part of the picture, you can select the relevant part by drawing a rectangle here.</string>
+    <string name="intro_inst7">After the relevant part of the image is selected, you can send it for identification by clicking this button.</string>
 
 </resources>

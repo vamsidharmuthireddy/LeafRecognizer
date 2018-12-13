@@ -7,12 +7,14 @@
     tools:context=".CameraActivityInbuilt"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#CFD8DC">
 
-    <include
-        layout="@layout/tool_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <!--<include-->
+        <!--layout="@layout/tool_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content" />-->
+
 
     <com.theartofdev.edmodo.cropper.CropImageView
         android:id="@+id/cropImageView"
@@ -27,6 +29,46 @@
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_leaf"
-        android:visibility="invisible"/>
+        android:src="@drawable/ic_leaf"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:layout_gravity="center">
+
+            <Button
+                android:id="@+id/edit_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit"
+                android:theme="@style/PrimaryButton"
+                android:layout_margin="24dp"
+                android:elevation="@dimen/activity_elevation"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:layout_gravity="center">
+
+            <Button
+                android:id="@+id/confirm_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/confirm"
+                android:theme="@style/PrimaryButton"
+                android:layout_margin="24dp"
+                android:elevation="@dimen/activity_elevation"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
 </RelativeLayout>

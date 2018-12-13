@@ -108,12 +108,12 @@
     </style>
 
     <style name="CustomShowcaseTheme3" parent="ShowcaseView.Light">
-        <item name="sv_backgroundColor">#be000000</item>
+        <item name="sv_backgroundColor">#aa000000</item>
         <item name="sv_showcaseColor">#96000000</item>
         <item name="sv_buttonText">Hide</item>
         <item name="sv_tintButtonColor">true</item>
-        <item name="sv_buttonForegroundColor">#FF000000</item>
-        <item name="sv_buttonBackgroundColor">#f32d2827</item>
+        <item name="sv_buttonForegroundColor">#876b6b</item>
+        <item name="sv_buttonBackgroundColor">#6c5a56</item>
         <item name="sv_titleTextAppearance">@style/CustomTitle2</item>
         <item name="sv_detailTextAppearance">@style/CustomText2</item>
     </style>
@@ -131,4 +131,9 @@
         <item name="android:textColor">#dcffffff</item>
     </style>
 
+
+    <style name="PrimaryButton" parent="Theme.AppCompat">
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+    </style>
 </resources>

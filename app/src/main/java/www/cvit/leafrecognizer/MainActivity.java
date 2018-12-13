@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private SessionManager sessionManager;
     private ShowcaseView showcaseView;
+    private String showcaseKey = "demo_main_screen";
 
     private Boolean openCameraButtonDown = false;
     private Boolean selectPictureButtonDown = false;
@@ -832,10 +833,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int demoNumber = 0;
 
     private void setShowCaseViews() {
-//        SessionManager sessionManager = new SessionManager();
-//        boolean showDemo = sessionManager.getBooleanSessionPreferences(MainActivity.this, "demo_2", false);
+        SessionManager sessionManager = new SessionManager();
+        boolean showDemo = sessionManager.getBooleanSessionPreferences(MainActivity.this, showcaseKey, false);
 
-        boolean showDemo = false;
+//        boolean showDemo = false;
 
         if (!showDemo) {
             Log.v(LOGTAG, "Current demo number is initial");
@@ -900,7 +901,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             showcaseView.hide();
             SessionManager sessionManager = new SessionManager();
-            sessionManager.setSessionPreferences(MainActivity.this, "demo_2", true);
+            sessionManager.setSessionPreferences(MainActivity.this, showcaseKey, true);
         }
     }
 

@@ -32,11 +32,20 @@ import android.support.v8.renderscript.Type;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageActivity;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.ByteArrayOutputStream;
@@ -54,7 +63,7 @@ import java.util.Random;
  * Created by vamsidhar on 4/12/17.
  */
 
-public class CameraActivityInbuilt extends AppCompatActivity {
+public class CameraActivityInbuilt extends AppCompatActivity  implements View.OnClickListener, OnShowcaseEventListener {
     private Bitmap queryImage;
     private String LOGTAG = "CameraActivityInbuilt";
     public static Menu menu;
@@ -71,18 +80,20 @@ public class CameraActivityInbuilt extends AppCompatActivity {
     private ArrayList<LeafInfo> leafInfo;
 
     private String queryLocation;
+    private ImageView resultImageView;
+
+    private Button editButton;
+    private Button confirmButton;
+
+    private SessionManager sessionManager;
+    private ShowcaseView showcaseView;
+    private String showcaseKey = "demo_crop_screen";
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_inbuilt);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(Color.WHITE);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        toolbar.setTitle("");
-        toolbar.setSubtitle("");
 
         Intent intent = getIntent();
         runOffline = (Boolean)intent.getExtras().getBoolean("runOffline");
@@ -91,6 +102,32 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         classifier = MainActivity.classifier;
 
         getBitmap(queryLocation);
+
+        setViews();
+        setListeners();
+
+        setShowCaseViews();
+
+
+//        loadleaf();
+
+
+    }
+
+    private void setViews(){
+
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        toolbar.setBackgroundColor(Color.WHITE);
+//        setSupportActionBar(toolbar);
+//        getSupportActionBar().setDisplayShowTitleEnabled(false);
+//        toolbar.setTitle("");
+//        toolbar.setSubtitle("");
+
+        editButton = findViewById(R.id.edit_button);
+        confirmButton = findViewById(R.id.confirm_button);
+        resultImageView = (ImageView)findViewById(R.id.crop_result);
+        resultImageView.setImageBitmap(queryImage);
+
 
         cropImageView = (CropImageView) findViewById(R.id.cropImageView);
 //        cropImageView.setGuidelines(1);
@@ -101,63 +138,134 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         cropImageView.setAutoZoomEnabled(true);
         cropImageView.setShowProgressBar(true);
         cropImageView.setImageBitmap(queryImage);
-
 //        cropImageView.setCropRect(new Rect(0, 0, 800, 500));
+
+        cropImageView.setVisibility(View.INVISIBLE);
+
+
+    }
+
+    private void setListeners(){
+        cropImageView.setOnCropWindowChangedListener(new CropImageView.OnSetCropWindowChangeListener() {
+            @Override
+            public void onCropWindowChanged() {
+                Log.v(LOGTAG,"crop window changed listener");
+                editButton.setVisibility(View.INVISIBLE);
+                confirmButton.setVisibility(View.INVISIBLE);
+            }
+        });
 
         cropImageView.setOnCropImageCompleteListener(new CropImageView.OnCropImageCompleteListener() {
             @Override
             public void onCropImageComplete(CropImageView view, CropImageView.CropResult result) {
-                Log.v(LOGTAG,"crop listener");
+                Log.v(LOGTAG,"crop image complete listener");
             }
         });
 
 
-//        loadleaf();
+        cropImageView.setOnSetCropOverlayMovedListener(new CropImageView.OnSetCropOverlayMovedListener() {
+            @Override
+            public void onCropOverlayMoved(Rect rect) {
+                Log.v(LOGTAG,"crop overlay moved listener");
+                editButton.setVisibility(View.INVISIBLE);
+                confirmButton.setVisibility(View.INVISIBLE);
+            }
+        });
 
+        cropImageView.setOnSetCropOverlayReleasedListener(new CropImageView.OnSetCropOverlayReleasedListener() {
+            @Override
+            public void onCropOverlayReleased(Rect rect) {
+                Log.v(LOGTAG,"crop overlay released listener");
+                editButton.setVisibility(View.VISIBLE);
+                confirmButton.setVisibility(View.VISIBLE);
+            }
+        });
+
+        cropImageView.setOnSetImageUriCompleteListener(new CropImageView.OnSetImageUriCompleteListener() {
+            @Override
+            public void onSetImageUriComplete(CropImageView view, Uri uri, Exception error) {
+                Log.v(LOGTAG,"crop image uri change listener");
+            }
+        });
+
+
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Rect cropRect = cropImageView.getCropRect();
+                Log.v(LOGTAG,cropRect.left+" "+cropRect.top
+                        +" "+cropRect.width()+" "+cropRect.height());
+                Bitmap croppedImage = cropImageView.getCroppedImage(cropRect.width(),cropRect.height());
+                dispCropImage(croppedImage);
+                saveImage(croppedImage);
+            }
+        });
+
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (cropImageView.getVisibility() == View.VISIBLE){
+                    Log.v(LOGTAG,"Making crop rectangle invisible");
+                    cropImageView.setVisibility(View.INVISIBLE);
+                    editButton.setText(R.string.orig);
+                    resultImageView.setImageBitmap(queryImage);
+                    resultImageView.setVisibility(View.VISIBLE);
+                }else if (cropImageView.getVisibility() == View.INVISIBLE){
+                    Log.v(LOGTAG,"Making crop rectangle visible");
+                    cropImageView.setVisibility(View.VISIBLE);
+                    editButton.setText(R.string.edit);
+                    resultImageView.setVisibility(View.INVISIBLE);
+                }
+
+            }
+        });
 
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_crop, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_crop, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu mMenu) {
+//        menu = mMenu;
+//        menuItem = menu.findItem(R.id.cropPicture);
+//        menuItem.setVisible(true);
+//        return super.onPrepareOptionsMenu(menu);
+//    }
+//
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        int id = item.getItemId();
+//        if (id == R.id.cropPicture) {
+//            Rect cropRect = cropImageView.getCropRect();
+//            Log.v(LOGTAG,cropRect.left+" "+cropRect.top
+//                    +" "+cropRect.width()+" "+cropRect.height());
+//            Bitmap croppedImage = cropImageView.getCroppedImage(cropRect.width(),cropRect.height());
+//
+//            item.setVisible(false);
+//            dispCropImage(croppedImage);
+//
+//            saveImage(croppedImage);
+//
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu mMenu) {
-        menu = mMenu;
-        menuItem = menu.findItem(R.id.cropPicture);
-        menuItem.setVisible(true);
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.cropPicture) {
-            Rect cropRect = cropImageView.getCropRect();
-            Log.v(LOGTAG,cropRect.left+" "+cropRect.top
-                    +" "+cropRect.width()+" "+cropRect.height());
-            Bitmap croppedImage = cropImageView.getCroppedImage(cropRect.width(),cropRect.height());
-
-            item.setVisible(false);
-            dispCropImage(croppedImage);
-
-            saveImage(croppedImage);
-
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     public void dispCropImage(Bitmap croppedImage){
         cropImageView.setVisibility(View.INVISIBLE);
-        ImageView cropImageView = (ImageView)findViewById(R.id.crop_result);
-        cropImageView.setImageBitmap(croppedImage);
-        cropImageView.setVisibility(View.VISIBLE);
+
+        resultImageView.setImageBitmap(croppedImage);
+        resultImageView.setVisibility(View.VISIBLE);
+        editButton.setVisibility(View.INVISIBLE);
+        confirmButton.setVisibility(View.INVISIBLE);
 //        MenuItem menuItem = findViewById(R.id.cropPicture);
 //        menuItem.setVisible(false);
 
@@ -401,6 +509,112 @@ public class CameraActivityInbuilt extends AppCompatActivity {
             Log.v(LOGTAG, resultString[i]+" "+Integer.parseInt(resultString[i])+" Id " + leaf.getLeaf(getString(R.string.id_tag))+" " +resultName[i]);
 
         }
+
+    }
+
+
+    private Target viewTarget[];
+    private String demoContent[];
+    private String demoTitle[];
+    private int demoNumber = 0;
+
+    private void setShowCaseViews() {
+        SessionManager sessionManager = new SessionManager();
+        boolean showDemo = sessionManager.getBooleanSessionPreferences(CameraActivityInbuilt.this, showcaseKey, false);
+
+//        boolean showDemo = false;
+
+        if (!showDemo) {
+            Log.v(LOGTAG, "Current demo number is initial");
+            viewTarget = new ViewTarget[10];
+            viewTarget[0] = new ViewTarget(findViewById(R.id.edit_button));
+            viewTarget[1] = new ViewTarget(findViewById(R.id.confirm_button));
+
+            demoContent = new String[10];
+            demoContent[0] = getString(R.string.intro_inst6);
+            demoContent[1] = getString(R.string.intro_inst7);
+
+            demoTitle = new String[10];
+            demoTitle[0] = getString(R.string.edit);
+            demoTitle[1] = getString(R.string.confirm);
+
+            String initialTitle = getString(R.string.editSection);
+            String initialContent = getString(R.string.edditSectionIntro);
+
+            showcaseView = new ShowcaseView.Builder(CameraActivityInbuilt.this)
+                    .blockAllTouches()
+                    .setContentTitle(initialTitle)
+                    .setContentText(initialContent)
+                    .setTarget(Target.NONE)
+                    .withNewStyleShowcase()
+                    .setOnClickListener(this)
+                    .setShowcaseEventListener(this)
+                    .setStyle(R.style.CustomShowcaseTheme3)
+                    .build();
+
+            RelativeLayout.LayoutParams lps = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lps.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            lps.addRule(RelativeLayout.CENTER_IN_PARENT);
+
+            showcaseView.setButtonPosition(lps);
+            showcaseView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            showcaseView.setButtonText(getString(R.string.next));
+            showcaseView.setShowcase(Target.NONE, true);
+            showcaseView.show();
+        } else {
+            Log.v(LOGTAG, "Demo already shown");
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        Log.v(LOGTAG, "onClick");
+        if (viewTarget[demoNumber] != null && demoContent[demoNumber] != null && demoTitle[demoNumber] != null) {
+            Log.v(LOGTAG, "Current demo number is " + demoNumber);
+            showcaseView.setShowcase(viewTarget[demoNumber], true);
+            showcaseView.show();
+            showcaseView.setContentTitle(demoTitle[demoNumber]);
+            showcaseView.setContentText(demoContent[demoNumber]);
+            if (viewTarget[demoNumber + 1] == null) {
+                showcaseView.setButtonText(getString(R.string.got_it));
+            }
+            //showcaseView.show();
+
+            demoNumber++;
+        } else {
+            showcaseView.hide();
+            SessionManager sessionManager = new SessionManager();
+            sessionManager.setSessionPreferences(CameraActivityInbuilt.this, showcaseKey, true);
+        }
+    }
+
+    @Override
+    public void onShowcaseViewHide(ShowcaseView _showcaseView) {
+
+    }
+
+    @Override
+    public void onShowcaseViewDidHide(ShowcaseView _showcaseView) {
+
+    }
+
+    @Override
+    public void onShowcaseViewShow(ShowcaseView _showcaseView) {
+        Log.v(LOGTAG, "onShow");
+        if (_showcaseView != null) {
+            Log.v(LOGTAG, "Local is not null");
+        } else {
+            Log.v(LOGTAG, "Local is null");
+        }
+        if (showcaseView != null) {
+            Log.v(LOGTAG, "global is not null");
+        } else {
+            Log.v(LOGTAG, "Local is null");
+        }
+    }
+
+    @Override
+    public void onShowcaseViewTouchBlocked(MotionEvent _motionEvent) {
 
     }
 
