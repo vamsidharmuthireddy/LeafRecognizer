@@ -238,7 +238,7 @@ public class ResultPrimaryActivity extends AppCompatActivity{
 //        imgFile.delete();
 //        Intent intent = new Intent(ResultPrimaryActivity.this, MainActivity.class);
 //        startActivity(intent);
-//        finish();
+        finish();
     }
 
 

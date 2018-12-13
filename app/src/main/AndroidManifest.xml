@@ -81,6 +81,7 @@
         <activity android:name=".ResultDetailActivity"/>
         <activity android:name=".ResultPrimaryActivity"/>
         <activity android:name=".FullScreenImageActivity"/>
+        <activity android:name=".ActivityInstructions"/>
 
     </application>
 

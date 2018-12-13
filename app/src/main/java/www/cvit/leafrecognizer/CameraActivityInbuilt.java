@@ -198,7 +198,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
         }
     }
 
-    public static Bitmap resizeBitmap2(RenderScript rs, Bitmap src, int minSize) {
+    public static Bitmap getResizedBitmap2(RenderScript rs, Bitmap src, int minSize) {
         Bitmap.Config  bitmapConfig = src.getConfig();
         int srcWidth = src.getWidth();
         int srcHeight = src.getHeight();
@@ -296,7 +296,7 @@ public class CameraActivityInbuilt extends AppCompatActivity {
             FileOutputStream fos = new FileOutputStream(croppedFile);
 //            Bitmap resizedImage = getResizedBitmap(croppedImage, MIN_SIZE);
             RenderScript rs = RenderScript.create(CameraActivityInbuilt.this);
-            Bitmap resizedImage = resizeBitmap2(rs,croppedImage,MIN_SIZE);
+            Bitmap resizedImage = getResizedBitmap2(rs,croppedImage,MIN_SIZE);
 
             resizedImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 

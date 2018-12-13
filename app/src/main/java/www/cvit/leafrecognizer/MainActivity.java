@@ -36,11 +36,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.w3c.dom.Text;
 
@@ -48,7 +55,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnShowcaseEventListener {
 
     private static final String LOGTAG = "MainActivity";
 
@@ -80,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private String userId;
 
     private SessionManager sessionManager;
-
+    private ShowcaseView showcaseView;
 
     private Boolean openCameraButtonDown = false;
     private Boolean selectPictureButtonDown = false;
@@ -89,14 +96,16 @@ public class MainActivity extends AppCompatActivity {
     final Float animationNormalScale = 1.0f;
     final int animationScaleTime = 250;
 
+    private ImageButton infoButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         setViews();
+        setShowCaseViews();
         setDummyListeners();
 
         try {
@@ -139,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
         modeSwitch = (SwitchCompat) findViewById(R.id.modeSwitch);
         modeSwitchText = (TextView) findViewById(R.id.modeSwitchText);
         selectPicture = (Button) findViewById(R.id.selectPicture);
+        infoButton = findViewById(R.id.info_button);
 
         if(modeSwitch.isChecked()){
             modeSwitchText.setText("Online Mode");
@@ -149,6 +159,8 @@ public class MainActivity extends AppCompatActivity {
         openCamera.setClickable(true);
         selectPicture.setClickable(true);
         modeSwitch.setClickable(true);
+        infoButton.setClickable(true);
+
         Log.d(LOGTAG,"Set Views");
 
     }
@@ -211,6 +223,7 @@ public class MainActivity extends AppCompatActivity {
                                         Log.v(LOGTAG, "openCamera UP animation End " + openCameraButtonDown);
                                         if (!openCameraButtonDown) {
                                             Log.v(LOGTAG, "openCamera Last Animation " + openCameraButtonDown);
+                                            Log.v(LOGTAG,"classifier "+classifier);
                                             String fileName = generateFileName();
 
 //                                            File saveFile = new File(Environment.getExternalStorageDirectory(),
@@ -396,6 +409,15 @@ public class MainActivity extends AppCompatActivity {
         };
 
         modeSwitch.setOnCheckedChangeListener(modeSwitchListener);
+
+        infoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, ActivityInstructions.class);
+                startActivity(i);
+
+            }
+        });
 
         Log.d(LOGTAG,"Set Listeners");
 
@@ -790,6 +812,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void openApplicationPermissions() {
+        Toast.makeText(MainActivity.this, "Please give necessary permissions",Toast.LENGTH_LONG);
         final Intent intent_permissions = new Intent();
         intent_permissions.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
         intent_permissions.addCategory(Intent.CATEGORY_DEFAULT);
@@ -803,7 +826,113 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private Target viewTarget[];
+    private String demoContent[];
+    private String demoTitle[];
+    private int demoNumber = 0;
 
+    private void setShowCaseViews() {
+//        SessionManager sessionManager = new SessionManager();
+//        boolean showDemo = sessionManager.getBooleanSessionPreferences(MainActivity.this, "demo_2", false);
+
+        boolean showDemo = false;
+
+        if (!showDemo) {
+            Log.v(LOGTAG, "Current demo number is initial");
+            viewTarget = new ViewTarget[10];
+            viewTarget[0] = new ViewTarget(findViewById(R.id.openCamera));
+            viewTarget[1] = new ViewTarget(findViewById(R.id.selectPicture));
+            viewTarget[2] = new ViewTarget(findViewById(R.id.modeSwitch));
+            viewTarget[3] = new ViewTarget(findViewById(R.id.modeSwitch));
+
+
+            demoContent = new String[10];
+            demoContent[0] = getString(R.string.intro_inst4);
+            demoContent[1] = getString(R.string.intro_inst5);
+            demoContent[2] = getString(R.string.intro_inst2);
+            demoContent[3] = getString(R.string.intro_inst3);
+
+            demoTitle = new String[10];
+            demoTitle[0] = getString(R.string.camera);
+            demoTitle[1] = getString(R.string.gallery);
+            demoTitle[2] = getString(R.string.online_mode);
+            demoTitle[3] = getString(R.string.offline_mode);
+
+
+            String initialTitle = getString(R.string.basepackagename);
+            String initialContent = getString(R.string.intro_inst1);
+
+            showcaseView = new ShowcaseView.Builder(MainActivity.this)
+                    .blockAllTouches()
+                    .setContentTitle(initialTitle)
+                    .setContentText(initialContent)
+                    .setTarget(Target.NONE)
+                    .withNewStyleShowcase()
+                    .setOnClickListener(this)
+                    .setShowcaseEventListener(this)
+                    .setStyle(R.style.CustomShowcaseTheme3)
+                    .build();
+
+            showcaseView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            showcaseView.setButtonText(getString(R.string.next));
+            showcaseView.setShowcase(Target.NONE, true);
+            showcaseView.show();
+        } else {
+            Log.v(LOGTAG, "Demo already shown");
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        Log.v(LOGTAG, "onClick");
+        if (viewTarget[demoNumber] != null && demoContent[demoNumber] != null && demoTitle[demoNumber] != null) {
+            Log.v(LOGTAG, "Current demo number is " + demoNumber);
+            showcaseView.setShowcase(viewTarget[demoNumber], true);
+            showcaseView.show();
+            showcaseView.setContentTitle(demoTitle[demoNumber]);
+            showcaseView.setContentText(demoContent[demoNumber]);
+            if (viewTarget[demoNumber + 1] == null) {
+                showcaseView.setButtonText(getString(R.string.got_it));
+            }
+            //showcaseView.show();
+
+            demoNumber++;
+        } else {
+            showcaseView.hide();
+            SessionManager sessionManager = new SessionManager();
+            sessionManager.setSessionPreferences(MainActivity.this, "demo_2", true);
+        }
+    }
+
+    @Override
+    public void onShowcaseViewHide(ShowcaseView _showcaseView) {
+
+    }
+
+    @Override
+    public void onShowcaseViewDidHide(ShowcaseView _showcaseView) {
+
+    }
+
+    @Override
+    public void onShowcaseViewShow(ShowcaseView _showcaseView) {
+        Log.v(LOGTAG, "onShow");
+        if (_showcaseView != null) {
+            Log.v(LOGTAG, "Local is not null");
+        } else {
+            Log.v(LOGTAG, "Local is null");
+        }
+        if (showcaseView != null) {
+            Log.v(LOGTAG, "global is not null");
+        } else {
+            Log.v(LOGTAG, "Local is null");
+        }
+    }
+
+    @Override
+    public void onShowcaseViewTouchBlocked(MotionEvent _motionEvent) {
+
+    }
 
 
 

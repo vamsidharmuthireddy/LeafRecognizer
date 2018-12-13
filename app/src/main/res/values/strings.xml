@@ -59,9 +59,29 @@
     <string name="image_url">image_url</string>
     <string name="leaf_name">leaf_name</string>
 
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="online_mode">Online Mode</string>
+    <string name="offline_mode">Offline Mode</string>
+    <string name="next">Next</string>
+    <string name="got_it">Got it</string>
+
+
     <string name="intro">Leaf recognizer is created in an effort to bring expert knowledge on plants to the hands of an user. Our dataset on Indian plants grows every day. You can click the camera icon on top to take a picture leaf of any plant you want to identify.</string>
 
     <string name="noconnection_text">Sorry, We are having trouble contacting our server</string>
-    <string name="nomatches_text">Sorry, We cannot find any matches with the query</string>
+    <string name="nomatches_text">Sorry, We were unable to find any matches with the query</string>
+
+
+    <string name="intro_inst1">Using our Leaf recognizer, you can identify over a hundred plants in your surroundings. To recognise a plant using our app, all you need is a decent picture of it. Please read through to know more about the functioning of the app.</string>
+    <string name="intro_inst2">In online mode, any picture taken will be sent to a hosted server and the received results will be displayed using the app. All the computations will be done on a remote server. You will need active internet connection when using this mode.</string>
+    <!--<string name="intro_inst2">In online mode</string>-->
+
+
+
+    <string name="intro_inst3">This switch can be toggled for offline mode. In offline mode, any picture taken will be processed on the mobile itself and the results will be displayed using the app. All the computations will be done using mobile hardware. You will not need any active internet connection when using this mode.</string>
+    <string name="intro_inst4">Using this icon, you can access camera application on your mobile. The picture clicked by camera by this process is used by Leaf recognizer for further processing.</string>
+    <string name="intro_inst5">Using this icon, you can access the picture gallery on your mobile. The picture selected from the gallery/files by this process is used by Leaf recognizer for further processing.</string>
+    <string name="intro_inst6">After query image is acquired, it will be displayed in the app and you need to specify the part of the image you want to recognise using a rectangular box. Upon completion, click the "Confirm Selection" button situated at the top-right corner to identify the selection in the picture.</string>
 
 </resources>
