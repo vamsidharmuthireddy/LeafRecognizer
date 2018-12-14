@@ -1,29 +1,16 @@
 package www.cvit.leafrecognizer;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.ExifInterface;
-import android.media.Image;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
@@ -44,11 +31,8 @@ import com.github.amlcurran.showcaseview.OnShowcaseEventListener;
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.Target;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageActivity;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -150,8 +134,8 @@ public class CameraActivityInbuilt extends AppCompatActivity  implements View.On
             @Override
             public void onCropWindowChanged() {
                 Log.v(LOGTAG,"crop window changed listener");
-                editButton.setVisibility(View.INVISIBLE);
-                confirmButton.setVisibility(View.INVISIBLE);
+//                editButton.setVisibility(View.INVISIBLE);
+//                confirmButton.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -539,7 +523,7 @@ public class CameraActivityInbuilt extends AppCompatActivity  implements View.On
             demoTitle[1] = getString(R.string.confirm);
 
             String initialTitle = getString(R.string.editSection);
-            String initialContent = getString(R.string.edditSectionIntro);
+            String initialContent = getString(R.string.editSectionIntro);
 
             showcaseView = new ShowcaseView.Builder(CameraActivityInbuilt.this)
                     .blockAllTouches()

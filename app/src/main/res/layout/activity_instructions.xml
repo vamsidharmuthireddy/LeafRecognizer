@@ -225,6 +225,58 @@
 
             </LinearLayout>
 
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="12dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_weight="0.4">
+                    <Button
+                        android:id="@+id/open_website"
+                        android:layout_width="125dp"
+                        android:layout_height="125dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/circle3"
+                        android:drawableTop="@drawable/ic_web"
+                        android:elevation="@dimen/activity_elevation"
+                        android:paddingBottom="25dp"
+                        android:paddingTop="25dp"
+                        android:stateListAnimator="@null"
+                        android:text="Catalogue" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:layout_weight="0.6">
+
+                    <include
+                        layout="@layout/card_text"
+                        android:id="@+id/inst8"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:elevation="@dimen/activity_elevation" />
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -315,11 +367,6 @@
                 </LinearLayout>
 
             </LinearLayout>
-
-
-
-
-
 
 
         </LinearLayout>

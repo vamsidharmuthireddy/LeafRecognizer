@@ -2,6 +2,7 @@ package www.cvit.leafrecognizer;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +36,14 @@ public class ResultDetailActivity extends AppCompatActivity{
      */
     private Toolbar toolbar;
     private ImageView imageView;
+
+    private TextView text_scientific_name_title;
+    private TextView text_common_name_title;
+    private TextView text_description_title;
+    private TextView text_utility_title;
+
+
+
     private TextView text_scientific_name;
     private CardView card_scientific_name;
     private TextView text_common_name;
@@ -43,6 +52,11 @@ public class ResultDetailActivity extends AppCompatActivity{
     private CardView card_description;
     private TextView text_utility;
     private CardView card_utility;
+
+
+
+
+
     private LeafInfo leafInfo;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private String language;
@@ -110,6 +124,29 @@ public class ResultDetailActivity extends AppCompatActivity{
 
         //setting up the interest point image as image in image view in co-ordinator layout
         imageView = (ImageView) findViewById(R.id.coordinatorlayout_imageview);
+
+
+        text_scientific_name_title =  findViewById(R.id.scientific_name).findViewById(R.id.cardview_text);
+        text_scientific_name_title.setTypeface(text_scientific_name_title.getTypeface(), Typeface.BOLD_ITALIC);
+        text_scientific_name_title.setText(R.string.scientific_name);
+        text_scientific_name_title.setGravity(Gravity.LEFT);
+
+        text_common_name_title = findViewById(R.id.common_name).findViewById(R.id.cardview_text);
+        text_common_name_title.setTypeface(text_common_name_title.getTypeface(), Typeface.BOLD_ITALIC);
+        text_common_name_title.setText(R.string.common_name);
+        text_common_name_title.setGravity(Gravity.LEFT);
+
+        text_description_title =  findViewById(R.id.description).findViewById(R.id.cardview_text);
+        text_description_title.setTypeface(text_description_title.getTypeface(), Typeface.BOLD_ITALIC);
+        text_description_title.setText(R.string.description);
+        text_description_title.setGravity(Gravity.LEFT);
+
+        text_utility_title = findViewById(R.id.utility).findViewById(R.id.cardview_text);
+        text_utility_title.setTypeface(text_utility_title.getTypeface(), Typeface.BOLD_ITALIC);
+        text_utility_title.setText(R.string.utility);
+        text_utility_title.setGravity(Gravity.LEFT);
+
+
 
         card_scientific_name = (CardView) findViewById(R.id.result_scientific_name);
         text_scientific_name = (TextView) card_scientific_name.findViewById(R.id.cardview_text);

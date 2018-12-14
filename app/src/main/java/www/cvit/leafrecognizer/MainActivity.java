@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static ImageClassifier classifier;
     private Button openCamera;
     private Button selectPicture;
-//    private Switch modeSwitch;
+    private Button openWebsite;
     private SwitchCompat modeSwitch;
     private TextView modeSwitchText;
     public static String queryLocation;
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ShowcaseView showcaseView;
     private String showcaseKey = "demo_main_screen";
 
+    private Boolean openWebsiteButtonDown = false;
     private Boolean openCameraButtonDown = false;
     private Boolean selectPictureButtonDown = false;
     final Float animationdownScale = 0.9f;
@@ -97,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     final Float animationNormalScale = 1.0f;
     final int animationScaleTime = 250;
 
-    private ImageButton infoButton;
+    private FloatingActionButton infoButton;
 
 
     @Override
@@ -149,7 +151,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         modeSwitch = (SwitchCompat) findViewById(R.id.modeSwitch);
         modeSwitchText = (TextView) findViewById(R.id.modeSwitchText);
         selectPicture = (Button) findViewById(R.id.selectPicture);
+        openWebsite = findViewById(R.id.open_website);
         infoButton = findViewById(R.id.info_button);
+
 
         if(modeSwitch.isChecked()){
             modeSwitchText.setText("Online Mode");
@@ -161,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         selectPicture.setClickable(true);
         modeSwitch.setClickable(true);
         infoButton.setClickable(true);
+        openWebsite.setClickable(true);
 
         Log.d(LOGTAG,"Set Views");
 
@@ -250,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                         ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                                                 takePicture.putExtra(MediaStore.EXTRA_OUTPUT,photoURI);
 
-                                                startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+//                                                startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
 
                                                 Log.d(LOGTAG,Uri.fromFile(saveFile).toString());
 
@@ -273,7 +278,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                                                     //startActivity(openGallery, options.toBundle());
                                                     if (!openCamera.hasTransientState()) {
-                                                        startActivity(takePicture, options.toBundle());
+//                                                        startActivity(takePicture, options.toBundle());
+                                                        startActivityForResult(takePicture,PERMISSIONS_REQUEST_CAMERA);
+
                                                     }
                                                 }
                                             });
@@ -388,6 +395,130 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
 
         selectPicture.setOnTouchListener(selectPictureOnTouchListener);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        final View.OnTouchListener openWebsiteTouchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(final View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        openWebsiteButtonDown = true;
+                        Log.v(LOGTAG, "openWebsite Down Animation " + openWebsiteButtonDown);
+                        openWebsite.clearAnimation();
+                        openWebsite.animate().scaleX(animationdownScale).scaleY(animationdownScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "openWebsite DOWN animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "openWebsite DOWN animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "openWebsite DOWN animation End " + openWebsiteButtonDown);
+                                    }
+                                })
+                                .start();
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        openWebsiteButtonDown = false;
+                        Log.v(LOGTAG, "openWebsite UP Triggered " + openWebsiteButtonDown);
+                        openWebsite.animate().scaleX(animationUpScale).scaleY(animationUpScale)
+                                .setDuration(animationScaleTime / 2)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                        super.onAnimationCancel(animation);
+                                        Log.v(LOGTAG, "openWebsite UP animation CANCEL");
+                                    }
+
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                        super.onAnimationStart(animation);
+                                        Log.v(LOGTAG, "openWebsite UP animation START");
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        super.onAnimationEnd(animation);
+                                        Log.v(LOGTAG, "openWebsite UP animation End " + openWebsiteButtonDown);
+                                        if (!openWebsiteButtonDown) {
+                                            Log.v(LOGTAG, "openWebsite Last Animation " + openWebsiteButtonDown);
+
+
+//                                            final Intent openWebsiteIntent = new Intent(MainActivity.this, WebsiteActivity.class);
+                                            final Intent openWebsiteIntent = new Intent(Intent.ACTION_VIEW);
+
+                                            String url = getString(R.string.leaf_portal_link);
+                                            openWebsiteIntent.setData(Uri.parse(url));
+//                                            startActivity(openWebsiteIntent);
+
+                                            int startX = (int) v.getX();
+                                            int startY = (int) v.getY();
+                                            int width = v.getWidth();
+                                            int height = v.getHeight();
+                                            final ActivityOptions options = ActivityOptions.makeScaleUpAnimation(v, startX, startY, width, height);
+                                            PropertyValuesHolder scalex = PropertyValuesHolder.ofFloat(View.SCALE_X, animationNormalScale);
+                                            PropertyValuesHolder scaley = PropertyValuesHolder.ofFloat(View.SCALE_Y, animationNormalScale);
+                                            ObjectAnimator anim = ObjectAnimator.ofPropertyValuesHolder(openWebsite, scalex, scaley);
+                                            //anim.setRepeatCount(1);
+                                            //anim.setRepeatMode(ValueAnimator.REVERSE);
+                                            anim.setDuration(animationScaleTime / 2);
+                                            anim.addListener(new AnimatorListenerAdapter() {
+                                                @Override
+                                                public void onAnimationEnd(Animator animation) {
+                                                    super.onAnimationEnd(animation);
+
+                                                    //startActivity(openGallery, options.toBundle());
+                                                    if (!openWebsite.hasTransientState()) {
+                                                        startActivity(openWebsiteIntent);
+                                                    }
+                                                }
+                                            });
+                                            anim.start();
+
+
+                                        }
+                                    }
+                                })
+                                .start();
+                        return true;
+                }
+
+                return false;//does not recognise any other touch events
+            }
+        };
+
+        openWebsite.setOnTouchListener(openWebsiteTouchListener);
+
 
 
         CompoundButton.OnCheckedChangeListener modeSwitchListener =
@@ -845,6 +976,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             viewTarget[1] = new ViewTarget(findViewById(R.id.selectPicture));
             viewTarget[2] = new ViewTarget(findViewById(R.id.modeSwitch));
             viewTarget[3] = new ViewTarget(findViewById(R.id.modeSwitch));
+            viewTarget[4] = new ViewTarget(findViewById(R.id.open_website));
 
 
             demoContent = new String[10];
@@ -852,12 +984,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             demoContent[1] = getString(R.string.intro_inst5);
             demoContent[2] = getString(R.string.intro_inst2);
             demoContent[3] = getString(R.string.intro_inst3);
+            demoContent[4] = getString(R.string.intro_inst8);
 
             demoTitle = new String[10];
             demoTitle[0] = getString(R.string.camera);
             demoTitle[1] = getString(R.string.gallery);
             demoTitle[2] = getString(R.string.online_mode);
             demoTitle[3] = getString(R.string.offline_mode);
+            demoTitle[4] = getString(R.string.web);
 
 
             String initialTitle = getString(R.string.basepackagename);

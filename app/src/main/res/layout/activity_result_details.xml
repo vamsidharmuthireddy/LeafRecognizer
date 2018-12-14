@@ -63,20 +63,14 @@
             android:layout_height="wrap_content"
             android:padding="4dp"
             android:layout_marginBottom="25dp">
-            <TextView
+
+            <include
+                layout="@layout/card_text"
                 android:id="@+id/scientific_name"
                 android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/white"
-                android:fadingEdge="horizontal"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/activity_small_text"
-                android:text="@string/scientific_name"
-                android:textStyle="bold|italic"/>
+                android:layout_height="wrap_content"
+                android:elevation="@dimen/activity_elevation" />
+
 
             <include
                 layout="@layout/card_text"
@@ -85,22 +79,12 @@
                 android:layout_height="wrap_content"
                 android:elevation="@dimen/activity_elevation" />
 
-
-
-            <TextView
+            <include
+                layout="@layout/card_text"
                 android:id="@+id/common_name"
                 android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/white"
-                android:fadingEdge="horizontal"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/activity_small_text"
-                android:text="@string/common_name"
-                android:textStyle="bold|italic"/>
+                android:layout_height="wrap_content"
+                android:elevation="@dimen/activity_elevation" />
 
             <include
                 layout="@layout/card_text"
@@ -110,20 +94,12 @@
                 android:elevation="@dimen/activity_elevation" />
 
 
-            <TextView
+            <include
+                layout="@layout/card_text"
                 android:id="@+id/description"
                 android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/white"
-                android:fadingEdge="horizontal"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/activity_small_text"
-                android:text="@string/description"
-                android:textStyle="bold|italic"/>
+                android:layout_height="wrap_content"
+                android:elevation="@dimen/activity_elevation" />
 
             <include
                 layout="@layout/card_text"
@@ -132,20 +108,12 @@
                 android:layout_height="wrap_content"
                 android:elevation="@dimen/activity_elevation" />
 
-            <TextView
+            <include
+                layout="@layout/card_text"
                 android:id="@+id/utility"
                 android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="4dp"
-                android:layout_marginTop="8dp"
-                android:background="@android:color/white"
-                android:fadingEdge="horizontal"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/activity_small_text"
-                android:text="@string/utility"
-                android:textStyle="bold|italic"/>
+                android:layout_height="wrap_content"
+                android:elevation="@dimen/activity_elevation" />
 
             <include
                 layout="@layout/card_text"
