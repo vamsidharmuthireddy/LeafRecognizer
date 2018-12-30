@@ -474,12 +474,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                             Log.v(LOGTAG, "openWebsite Last Animation " + openWebsiteButtonDown);
 
 
-//                                            final Intent openWebsiteIntent = new Intent(MainActivity.this, WebsiteActivity.class);
-                                            final Intent openWebsiteIntent = new Intent(Intent.ACTION_VIEW);
+                                            final Intent openWebsiteIntent = new Intent(MainActivity.this, WebsiteActivity.class);
 
-                                            String url = getString(R.string.leaf_portal_link);
-                                            openWebsiteIntent.setData(Uri.parse(url));
-//                                            startActivity(openWebsiteIntent);
+//                                             Uncomment these to open the website using a browser
+//                                            final Intent openWebsiteIntent = new Intent(Intent.ACTION_VIEW);
+//                                            String url = getString(R.string.leaf_portal_link);
+//                                            openWebsiteIntent.setData(Uri.parse(url));
 
                                             int startX = (int) v.getX();
                                             int startY = (int) v.getY();

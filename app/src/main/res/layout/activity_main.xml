@@ -19,6 +19,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_margin="@dimen/fab_margin"
+        android:elevation="@dimen/activity_elevation"
         android:src="@drawable/ic_action_info"
         app:srcCompat="@android:drawable/ic_menu_info_details" />
 

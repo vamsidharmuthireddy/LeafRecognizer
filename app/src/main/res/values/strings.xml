@@ -92,4 +92,6 @@
     <string name="intro_inst8">If you are interested in getting to know about different plant species, you can browse them in our website. This button will take you there. You can even contribute to the portal by editing/adding any existing/new information to our portal. To edit/add data, you need to signup. Your account will be approved in two days on an average.</string>
     <string name="title_activity_website">WebsiteActivity</string>
 
+    <string name="loading_page">"The page is getting loaded. Please wait!"</string>
+
 </resources>

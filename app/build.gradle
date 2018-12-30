@@ -8,7 +8,7 @@ assert file(project.ext.ASSET_DIR + "/leaf_data.xml").exists()
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '27.0.3'
+    buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId "www.cvit.leafrecognizer"
         minSdkVersion 21

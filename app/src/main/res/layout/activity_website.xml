@@ -35,6 +35,6 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_menu_revert" />
+        android:src="@drawable/ic_action_undo" />
 
 </RelativeLayout>

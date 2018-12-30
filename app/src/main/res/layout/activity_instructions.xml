@@ -12,7 +12,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="@dimen/activity_elevation">
+            android:paddingTop="@dimen/activity_elevation"
+            android:paddingBottom="@dimen/activity_elevation">
 
             <include
                 layout="@layout/card_text"

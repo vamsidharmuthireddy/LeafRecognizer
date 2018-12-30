@@ -1,14 +1,20 @@
 package www.cvit.leafrecognizer;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
 import android.media.ExifInterface;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v8.renderscript.Allocation;
@@ -38,6 +44,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -123,6 +130,7 @@ public class CameraActivityInbuilt extends AppCompatActivity  implements View.On
         cropImageView.setShowProgressBar(true);
         cropImageView.setImageBitmap(queryImage);
 //        cropImageView.setCropRect(new Rect(0, 0, 800, 500));
+
 
         cropImageView.setVisibility(View.INVISIBLE);
 
@@ -255,7 +263,7 @@ public class CameraActivityInbuilt extends AppCompatActivity  implements View.On
 
     }
 
-    private void rotateImage(String path){
+    private Bitmap rotateImage(String path, Bitmap b){
         try {
             ExifInterface exifInterface = new ExifInterface(path);
             String orientString = exifInterface.getAttribute(ExifInterface.TAG_ORIENTATION);
@@ -264,26 +272,71 @@ public class CameraActivityInbuilt extends AppCompatActivity  implements View.On
             int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_NORMAL);
 
-            Log.v(LOGTAG,"Orientation : "+orientation);
-//            CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-//            CameraCharacteristics cameraCharacteristics = manager.getCameraCharacteristics("" + 0)
+            Log.v(LOGTAG,"Orientation EXIF: "+orientation);
+            CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+            try {
+                String cameraId = manager.getCameraIdList()[0];
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                orientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+
+                Log.v(LOGTAG,"Orientation cameraChar: "+orientation);
+
+                int degree = 0;
+
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_NORMAL:
+                        degree = 0;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        degree = 90;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        degree = 180;
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        degree = 270;
+                        break;
+                    case ExifInterface.ORIENTATION_UNDEFINED:
+                        degree = 0;
+                        break;
+                    default:
+                        degree = 90;
+                }
+                Log.v(LOGTAG,"Rotation degree: "+degree);
+
+                Matrix matrix = new Matrix();
+                if(b.getWidth()>b.getHeight()){
+                    matrix.setRotate(degree);
+                    b = Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(),
+                            matrix, true);
+                }
+            }
+            catch (Exception e)
+            {
+            }
+
 
         }catch (IOException e){
             Log.e(LOGTAG,"IO exception: "+e.getMessage());
         }
 
+        return b;
+
     }
 
     public void getBitmap(String path) {
         try {
-            rotateImage(path);
             Bitmap bitmap=null;
             File f= new File(path);
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
             bitmap = BitmapFactory.decodeStream(new FileInputStream(f), null, options);
-            queryImage = bitmap;
+//            queryImage = bitmap;
+
+            queryImage = rotateImage(path,bitmap);
+
+
         } catch (Exception e) {
             e.printStackTrace();
 
